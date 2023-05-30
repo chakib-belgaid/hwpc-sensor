@@ -30,7 +30,6 @@
  */
 
 #include <czmq.h>
-#include <fts.h>
 #include <regex.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,6 +39,10 @@
 #include "target.h"
 #include "target_docker.h"
 #include "target_kubernetes.h"
+
+#define _XOPEN_SOURCE 500
+#include <ftw.h>
+#include <limits.h>
 
 const char *target_types_name[] = {
     [TARGET_TYPE_UNKNOWN] = "unknown",
@@ -51,6 +54,15 @@ const char *target_types_name[] = {
     [TARGET_TYPE_LIBVIRT] = "libvirt",
     [TARGET_TYPE_LXC] = "lxc",
 };
+
+
+// Define a struct to hold context for the callback function
+struct NftwContext {
+    const char *base_path;
+    enum target_type type_mask;
+    zhashx_t *targets;
+};
+
 
 enum target_type
 target_detect_type(const char *cgroup_path)
@@ -160,35 +172,35 @@ target_destroy(struct target *target)
     free(target);
 }
 
-int
-target_discover_running(const char *base_path, enum target_type type_mask, zhashx_t *targets)
-{
-    const char *path[] = { base_path, NULL };
-    FTS *file_system = NULL;
-    FTSENT *node = NULL;
+
+int nftw_callback(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf) {
+    // If it's not a directory or if it's not a leaf directory, skip it
+    if (typeflag != FTW_D || ftwbuf->level == 0 || ftwbuf->level > 1)
+        return 0;
+
     enum target_type type;
     struct target *target = NULL;
+    struct NftwContext *context = ftwbuf->base;
 
-    file_system = fts_open((char * const *)path, FTS_LOGICAL | FTS_NOCHDIR, NULL);
-    if (!file_system)
-        return -1;
-
-    for (node = fts_read(file_system); node; node = fts_read(file_system)) {
-        /*
-         * Filtering the directories having 2 hard links leading to them to only get leaves directories.
-         * The cgroup subsystems does not support hard links, so this will always work.
-         */
-        if (node->fts_info == FTS_D && node->fts_statp->st_nlink == 2) {
-            type = target_detect_type(node->fts_path);
-            if ((type & type_mask) && target_validate_type(type, node->fts_path)) {
-                target = target_create(type, base_path, node->fts_path);
-                if (target)
-                    zhashx_insert(targets, node->fts_path, target);
-            }
-        }
+    type = target_detect_type(fpath);
+    if ((type & context->type_mask) && target_validate_type(type, fpath)) {
+        target = target_create(type, context->base_path, fpath);
+        if (target)
+            zhashx_insert(context->targets, fpath, target);
     }
 
-    fts_close(file_system);
+    return 0; // To tell nftw() to continue
+}
+
+
+int target_discover_running(const char *base_path, enum target_type type_mask, zhashx_t *targets) {
+    struct NftwContext context = { .base_path = base_path, .type_mask = type_mask, .targets = targets };
+
+    if (nftw(base_path, nftw_callback, 20, FTW_PHYS) == -1) {
+        perror("nftw");
+        return -1;
+    }
+
     return 0;
 }
 

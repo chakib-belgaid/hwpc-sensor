@@ -1,0 +1,7 @@
+{
+    "cmake.configureOnOpen": false,
+    "files.associations": {
+        "fts.h": "c",
+        "__node_handle": "c"
+    }
+}
