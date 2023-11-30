@@ -58,3 +58,4 @@ dockerbuild/
 
 # CMake
 compile_commands.json
+APKBUILD
