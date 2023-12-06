@@ -1,0 +1,4 @@
+#!/bin/sh    
+
+sudo mkdir /sys/fs/cgroup/perf_event
+sudo mount -t cgroup -o perf_event none /sys/fs/cgroup/perf_event
