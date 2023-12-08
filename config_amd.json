@@ -25,8 +25,8 @@
         "core": {
             "events": [
                 "CYCLES_NOT_IN_HALT",
-                "RETIRED_INSTRUCTIONS",
-                "RETIRED_UOPS"
+                " RETIRED_INSTRUCTIONS",
+                " RETIRED_UOPS"
             ]
         }
     }
