@@ -60,3 +60,8 @@ dockerbuild/
 compile_commands.json
 APKBUILD
 hwpc-0.3-r0.apk
+
+config_amd.json
+config_intel.json
+
+libpfm4
