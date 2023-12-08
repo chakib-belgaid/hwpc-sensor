@@ -20,10 +20,10 @@ get_events() {
         ["AMD"]='CYCLES_NOT_IN_HALT, RETIRED_INSTRUCTIONS, RETIRED_UOPS '
     )
 
-    cpu_family=$(lscpu | grep "Vendor ID" | awk '{print $3}')
+    cpu_family=$(cat /proc/cpuinfo | grep "Vendor ID" | awk '{print $3}')
 
     if [ $cpu_family == "GenuineIntel" ]; then
-        cpu_family=$(lscpu | grep "CPU family" | awk '{print $3}')
+        cpu_family=$(cat /proc/cpuinfo | grep "CPU family" | awk '{print $3}')
         cpu_model=${cpu_family_codename_map[$cpu_family]}
     elif [ $cpu_family == "AuthenticAMD" ]; then
         cpu_model="AMD"
