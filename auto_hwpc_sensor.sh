@@ -20,19 +20,18 @@ get_events() {
         ["AMD"]='CYCLES_NOT_IN_HALT, RETIRED_INSTRUCTIONS, RETIRED_UOPS '
     )
 
-    cpu_family=$(cat /proc/cpuinfo | grep "Vendor ID" | awk '{print $3}')
-
-    if [ $cpu_family == "GenuineIntel" ]; then
-        cpu_family=$(cat /proc/cpuinfo | grep "CPU family" | awk '{print $3}')
+    cpu_family=$(cat /proc/cpuinfo  | grep "vendor_id" | awk '{print $3}' | head -n 1)
+    if [ "$cpu_family" == "GenuineIntel" ]; then
+        cpu_family=$(lscpu | grep "cpu family" | awk '{print $3}' | head -n 1)
         cpu_model=${cpu_family_codename_map[$cpu_family]}
-    elif [ $cpu_family == "AuthenticAMD" ]; then
+    elif [ "$cpu_family" == "AuthenticAMD" ]; then
         cpu_model="AMD"
     else
         echo "Unknown CPU family"
         exit 1
     fi
-    events=${cpu_model_event_map[$cpu_model]}
-    echo $events
+        events=${cpu_model_event_map[$cpu_model]}
+        echo $events
 }
 
 function events_to_json() {
@@ -40,10 +39,11 @@ function events_to_json() {
     echo $events | tr -d '\n' | awk -v RS="," 'BEGIN{print "    \"container\": {\n        \"core\": {\n            \"events\": ["} {if (NR > 1) printf ","; printf "\n                \"" $0 "\""} END { printf "\n            ]\n        }\n    }\n"}'
 }
 
+events=`get_events`
 sed -i '$ d' $config_file
 echo "," >> $config_file
-events=`get_events`
 events_to_json $events >> $config_file
 echo "}" >> $config_file
+
 
 hwpc-sensor --config-file $config_file
