@@ -36,7 +36,7 @@ get_events() {
 
 function events_to_json() {
     local events=$@
-    echo $events | tr -d '\n' | awk -v RS="," 'BEGIN{print "    \"container\": {\n        \"core\": {\n            \"events\": ["} {if (NR > 1) printf ","; printf "\n                \"" $0 "\""} END { printf "\n            ]\n        }\n    }\n"}'
+    echo $events | tr -d '\n' |tr -d ' ' |  awk -v RS="," 'BEGIN{print "    \"container\": {\n        \"core\": {\n            \"events\": ["} {if (NR > 1) printf ","; printf "\n                \"" $0 "\""} END { printf "\n            ]\n        }\n    }\n"}'
 }
 
 events=`get_events`
