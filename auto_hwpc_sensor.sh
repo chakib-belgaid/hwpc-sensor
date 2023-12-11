@@ -22,7 +22,7 @@ get_events() {
 
     cpu_family=$(cat /proc/cpuinfo  | grep "vendor_id" | awk '{print $3}' | head -n 1)
     if [ "$cpu_family" == "GenuineIntel" ]; then
-        cpu_family=$(lscpu | grep "cpu family" | awk '{print $3}' | head -n 1)
+        cpu_family=$(cat /proc/cpuinfo | grep "cpu family" | awk '{print $4}' | head -n 1)
         cpu_model=${cpu_family_codename_map[$cpu_family]}
     elif [ "$cpu_family" == "AuthenticAMD" ]; then
         cpu_model="AMD"
@@ -40,10 +40,16 @@ function events_to_json() {
 }
 
 events=`get_events`
-sed -i '$ d' $config_file
-echo "," >> $config_file
-events_to_json $events >> $config_file
-echo "}" >> $config_file
+# insert the get_vents entry into a copy of the config file 
+cp $config_file $config_file.bak
+# remove the last } from the config file
+sed -i '$ d' $config_file.bak
+#replace the last } with }, in the config file
+sed -i '$ s/$/,/' $config_file.bak
+# add the events to the config file
+events_to_json $events >> $config_file.bak
+# add the last } to the config file
+echo "}" >> $config_file.bak
 
 
-hwpc-sensor --config-file $config_file
+# hwpc-sensor --config-file $config_file
