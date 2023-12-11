@@ -1,7 +1,6 @@
 #!/bin/bash
 
-config_file=$1
-
+# This script is used to automatically generate the config file for hwpc-sensor based on the CPU model.
 get_events() {
     declare -A cpu_family_codename_map=(
         ["6"]="Skylake"
@@ -39,17 +38,27 @@ function events_to_json() {
     echo $events | tr -d '\n' |tr -d ' ' |  awk -v RS="," 'BEGIN{print "    \"container\": {\n        \"core\": {\n            \"events\": ["} {if (NR > 1) printf ","; printf "\n                \"" $0 "\""} END { printf "\n            ]\n        }\n    }\n"}'
 }
 
-events=`get_events`
-# insert the get_vents entry into a copy of the config file 
-cp $config_file $config_file.bak
-# remove the last } from the config file
-sed -i '$ d' $config_file.bak
-#replace the last } with }, in the config file
-sed -i '$ s/$/,/' $config_file.bak
-# add the events to the config file
-events_to_json $events >> $config_file.bak
-# add the last } to the config file
-echo "}" >> $config_file.bak
+update_config_file() {
+    events=$(get_events)
+    config_file=$1
+
+    # Create a backup of the config file
+    cp "$config_file" "$config_file.bak"
+
+    # Remove the last } from the config file
+    sed -i '$ d' "$config_file.bak"
+
+    # Replace the last } with }, in the config file
+    sed -i '$ s/$/,/' "$config_file.bak"
+
+    # Add the events to the config file
+    events_to_json "$events" >> "$config_file.bak"
+
+    # Add the last } to the config file
+    echo "}" >> "$config_file.bak"
+
+}
 
 
-# hwpc-sensor --config-file $config_file
+update_config_file $1 
+hwpc-sensor --config-file $1.bak
