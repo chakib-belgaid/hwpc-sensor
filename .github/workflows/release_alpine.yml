@@ -34,7 +34,7 @@ jobs:
         steps:
             - name: Download Docker image artifact
               uses: actions/download-artifact@v3
-              with: name:docker-image-alpine-${{ env.ALPINE_VERSION }}
+              with: docker-image-alpine-${{ env.ALPINE_VERSION }}
             - name: Load Docker image from tar file
               run: docker load < image.tar
             - name: Run Docker image
