@@ -38,7 +38,7 @@ jobs:
             - name: Run Docker image
               run: docker run --name alpinos alpino:latest
             - name: retrieve the data from the container
-              run: docker cp alpinos:packages/home/x86_64/hwpc-0.3.5-r0.apk .
+              run: docker cp alpinos:/home/packager/packages/home/x86_64/hwpc-0.3.5-r0.apk .
             - name: publish the apk file to github
               uses: actions/upload-artifact@v3
               with:
