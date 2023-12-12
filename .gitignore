@@ -58,7 +58,6 @@ dockerbuild/
 
 # CMake
 compile_commands.json
-APKBUILD
 hwpc-0.3-r0.apk
 
 config_amd.json
