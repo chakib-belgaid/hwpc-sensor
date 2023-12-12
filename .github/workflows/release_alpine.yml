@@ -5,6 +5,9 @@ on:
         branches:
             - alpine
 
+env:
+    ALPINE_VERSION: 3.12
+
 jobs:
     build:
         runs-on: ubuntu-latest
@@ -13,14 +16,14 @@ jobs:
             - uses: actions/checkout@v4
             - name: Build the Docker image
               run: |
-                  docker build . --file Dockerfile --tag alpino:latest
+                  docker build . --file Dockerfile --tag hwpc-alpine:${{ env.ALPINE_VERSION }} --build-arg ALPINE_VERSION=${{ env.ALPINE_VERSION }}
 
             - name: Save Docker image as a tar file
-              run: docker save alpino:latest > image.tar
+              run: docker save hwpc-alpine:${{ env.ALPINE_VERSION }} > image.tar
             - name: Upload Docker image as a workflow artifact
               uses: actions/upload-artifact@v3
               with:
-                  name: docker-image
+                  name: docker-image-alpine-${{ env.ALPINE_VERSION }}
                   path: image.tar
 
     retrieve-artifact:
@@ -31,14 +34,13 @@ jobs:
         steps:
             - name: Download Docker image artifact
               uses: actions/download-artifact@v3
-              with:
-                  name: docker-image
+              with: name:docker-image-alpine-${{ env.ALPINE_VERSION }}
             - name: Load Docker image from tar file
               run: docker load < image.tar
             - name: Run Docker image
-              run: docker run --name alpinos alpino:latest
+              run: docker run --name runner hwpc-alpine:${{ env.ALPINE_VERSION }}
             - name: retrieve the data from the container
-              run: docker cp alpinos:/home/packager/packages/home/x86_64/hwpc-0.3.5-r0.apk .
+              run: docker cp runner:/home/packager/packages/home/x86_64/hwpc-0.3.5-r0.apk .
             - name: publish the apk file to github
               uses: actions/upload-artifact@v3
               with:

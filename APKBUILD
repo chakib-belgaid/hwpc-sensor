@@ -1,8 +1,8 @@
 # Contributor: chakib blegaid
 # Maintainer: chakib belgaid  <mohammed-chakib.belgaid@inria.fr>
 pkgname=hwpc
-pkgver=0.3.5
-pkgrel=0
+pkgver=0.3
+pkgrel=0.6
 pkgdesc="a library to access hardware performance counters on linux"
 url="www.powerapi.org/reference/sensors/hwpc-sensor/"
 arch="x86_64"
@@ -35,8 +35,8 @@ build() {
     git clone https://github.com/chakib-belgaid/hwpc-sensor.git --branch alpine hwpc
     cd hwpc
     cmake -B build -DCMAKE_C_FLAGS="-I$libdir/libpfm4/usr/local/include" -DCMAKE_EXE_LINKER_FLAGS="-L$libdir/libpfm4/usr/local/lib"
-    cmake --build build 
-    echo "build done" 
+    cmake --build build
+    echo "build done"
 }
 
 check() {
@@ -51,10 +51,6 @@ package() {
     install -Dm755 hwpc/auto_hwpc_sensor.sh "$pkgdir"/usr/bin/auto-hwpc-sensor
 }
 
-
-
-clean(){
+clean() {
     :
 }
-    
-
