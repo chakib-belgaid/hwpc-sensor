@@ -43,7 +43,7 @@ jobs:
             - name: Run Docker image
               run: docker run --name runner hwpc-alpine:${{ env.ALPINE_VERSION }}
             - name: retrieve the data from the container
-              run: docker cp runner:/home/packager/packages/home/x86_64/hwpc-${{env.Package_version}}-${{env.Package_release}}.apk .
+              run: docker cp runner:/home/packager/packages/home/x86_64/hwpc-${{env.Package_version}}-r${{env.Package_release}}.apk .
             - name: publish the apk file to github
               uses: actions/upload-artifact@v3
               with:
