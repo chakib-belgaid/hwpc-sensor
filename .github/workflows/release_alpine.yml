@@ -7,6 +7,7 @@ on:
 
 env:
     ALPINE_VERSION: 3.12
+    Package_version: 0.3-r6
 
 jobs:
     build:
@@ -34,15 +35,16 @@ jobs:
         steps:
             - name: Download Docker image artifact
               uses: actions/download-artifact@v3
-              with: docker-image-alpine-${{ env.ALPINE_VERSION }}
+              with:
+                  name: docker-image-alpine-${{ env.ALPINE_VERSION }}
             - name: Load Docker image from tar file
               run: docker load < image.tar
             - name: Run Docker image
               run: docker run --name runner hwpc-alpine:${{ env.ALPINE_VERSION }}
             - name: retrieve the data from the container
-              run: docker cp runner:/home/packager/packages/home/x86_64/hwpc-0.3.5-r0.apk .
+              run: docker cp runner:/home/packager/packages/home/x86_64/hwpc-${{env.Package_version}}.apk .
             - name: publish the apk file to github
               uses: actions/upload-artifact@v3
               with:
-                  name: hwpc-0.3.5-r0.apk
-                  path: hwpc-0.3.5-r0.apk
+                  name: hwpc-${{env.Package_version}}.apk
+                  path: hwpc-${{env.Package_version}}.apk
