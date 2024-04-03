@@ -8,7 +8,7 @@ on:
 env:
     ALPINE_VERSION: 3.16
     Package_version: 0.3
-    Package_release: 9
+    Package_release: 10
 
 jobs:
     build:
