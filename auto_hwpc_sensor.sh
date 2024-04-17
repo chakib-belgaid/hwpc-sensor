@@ -30,13 +30,13 @@ get_events() {
         exit 1
     fi
 
-        events=${cpu_model_event_map[$cpu_model]}
-        echo $events
+    events=${cpu_model_event_map[$cpu_model]}
+    echo $events
 }
 
 function events_to_json() {
     local events=$@
-    echo $events | tr -d '\n' |tr -d ' ' |  awk -v RS="," 'BEGIN{print "    \"container\": {\n        \"core\": {\n            \"events\": ["} {if (NR > 1) printf ","; printf "\n                \"" $0 "\""} END { printf "\n            ]\n        }\n    }\n"}'
+    echo $events | tr -d '\n' | tr -d ' ' | awk -v RS="," 'BEGIN{print "    \"container\": {\n        \"core\": {\n            \"events\": ["} {if (NR > 1) printf ","; printf "\n                \"" $0 "\""} END { printf "\n            ]\n        }\n    }\n"}'
 }
 
 update_config_file() {
@@ -53,13 +53,12 @@ update_config_file() {
     sed -i '$ s/$/,/' "$config_file.bak"
 
     # Add the events to the config file
-    events_to_json "$events" >> "$config_file.bak"
+    events_to_json "$events" >>"$config_file.bak"
 
     # Add the last } to the config file
-    echo "}" >> "$config_file.bak"
+    echo "}" >>"$config_file.bak"
 
 }
 
-
-update_config_file $1 
+update_config_file $1
 hwpc-sensor --config-file $1.bak

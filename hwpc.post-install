@@ -5,7 +5,7 @@ if [ $? -ne 0 ]; then
     echo "warning: Failed to create directory /sys/fs/cgroup/perf_event"
 fi
 
-mount -t cgroup -o perf_event none /sys/fs/cgroup/perf_event
+mount -t cgroup2 /sys/fs/cgroup/perf_event
 if [ $? -ne 0 ]; then
-    echo "warning: Failed to mount cgroup perf_event"
+    echo "warning: Failed to mount cgroup2 perf_event"
 fi

@@ -6,9 +6,9 @@ on:
             - alpine
 
 env:
-    ALPINE_VERSION: 3.16
+    ALPINE_VERSION: 3.12
     Package_version: 0.3
-    Package_release: 10
+    Package_release: 11
 
 jobs:
     build:
