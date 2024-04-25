@@ -46,5 +46,5 @@ endif()
 
 
 add_executable(hwpc-sensor "${SENSOR_SOURCES}")
-target_include_directories(hwpc-sensor SYSTEM PRIVATE "${LIBPFM_INCLUDE_DIRS}" "${CZMQ_INCLUDE_DIRS}" "${JSONC_INCLUDE_DIRS}" "${MONGOC_INCLUDE_DIRS}")
-target_link_libraries(hwpc-sensor "${LIBPFM_LIBRARIES}" "${CZMQ_LIBRARIES}" "${JSONC_LIBRARIES}" "${MONGOC_LIBRARIES}")
+target_include_directories(hwpc-sensor SYSTEM PRIVATE  "${CZMQ_INCLUDE_DIRS}" "${JSONC_INCLUDE_DIRS}" "${MONGOC_INCLUDE_DIRS}")
+target_link_libraries(hwpc-sensor "${CZMQ_LIBRARIES}" pfm "${JSONC_LIBRARIES}" "${MONGOC_LIBRARIES}")
