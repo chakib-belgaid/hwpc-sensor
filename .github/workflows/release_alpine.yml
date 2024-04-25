@@ -41,7 +41,10 @@ jobs:
             - name: Load Docker image from tar file
               run: docker load < image.tar
             - name: Run Docker image
-              run: docker run --name runner hwpc-alpine:${{ env.ALPINE_VERSION }}
+              run: docker run --name runner  hwpc-alpine:${{ env.ALPINE_VERSION }}
+              env:
+                  GIT_TAG: ${{ env.GIT_TAG }}
+                  GIT_REV: ${{ env.GIT_REV }}
             - name: retrieve the data from the container
               run: docker cp runner:/home/packager/packages/home/x86_64/hwpc-${{env.GIT_TAG}}-r${{env.GIT_REV}}.apk .
             - name: publish the apk file to github
