@@ -18,7 +18,7 @@ jobs:
             - uses: actions/checkout@v4
             - name: Build the Docker image
               run: |
-                  docker build . --file Dockerfile --tag hwpc-alpine:${{ env.ALPINE_VERSION }} --build-arg ALPINE_VERSION=${{ env.ALPINE_VERSION }}
+                  docker build . --file Dockerfile --tag hwpc-alpine:${{ env.ALPINE_VERSION }} --build-arg ALPINE_VERSION=${{ env.ALPINE_VERSION }} --build-arg GIT_TAG=${{ env.GIT_TAG }} --build-arg GIT_REV=${{ env.GIT_REV }}
 
             - name: Save Docker image as a tar file
               run: docker save hwpc-alpine:${{ env.ALPINE_VERSION }} > image.tar
