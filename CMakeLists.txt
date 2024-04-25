@@ -9,16 +9,15 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-add_compile_options(  -Wformat=2 -Wnull-dereference)
+add_compile_options( -Wall -Wextra  -Wformat=2 -Wnull-dereference)
 add_link_options(-Wl,-z,relro,-z,now -pie  )
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Og")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -D_FORTIFY_SOURCE=2 -fstack-protector-strong")
 
 set(SENSOR_SOURCES
-
+    src/fts.c
     src/config.c
     src/util.c
-    src/fts.c
     src/target.c
     src/target_docker.c
     src/target_kubernetes.c
