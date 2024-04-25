@@ -5,6 +5,10 @@ ARG GIT_REV
 FROM alpine:${ALPINE_VERSION}
 WORKDIR /home/packager
 
+RUN echo "ALPINE_VERSION is $ALPINE_VERSION"
+RUN echo "GIT_TAG is $GIT_TAG"
+RUN echo "GIT_REV is $GIT_REV"
+
 # If you want these variables to be available in the running container
 ENV ALPINE_VERSION=$ALPINE_VERSION
 ENV GIT_TAG=$GIT_TAG
