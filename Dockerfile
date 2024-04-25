@@ -1,6 +1,6 @@
 ARG ALPINE_VERSION=3.12
-ARG GIT_TAG = "undefined"
-ARG GIT_REV = "undefined"
+ARG GIT_TAG="undefined"
+ARG GIT_REV="undefined"
 FROM alpine:${ALPINE_VERSION}
 WORKDIR /home/packager
 ADD APKBUILD APKBUILD
