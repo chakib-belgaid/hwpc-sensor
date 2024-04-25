@@ -30,7 +30,7 @@
  */
 
 #include <czmq.h>
-#include <fts.h>
+#include <bsd/stdlib.h>
 #include <regex.h>
 #include <stdio.h>
 #include <stdlib.h>
