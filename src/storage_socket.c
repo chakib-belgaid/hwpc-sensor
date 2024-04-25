@@ -53,7 +53,7 @@ socket_context_create(const char *sensor_name, const char *address, const int po
     ctx->config.sensor_name = sensor_name;
     ctx->config.address = address;
     ctx->config.port = port;
-    
+
     ctx->socket_fd = -1;
     ctx->last_retry_time = 0;
     ctx->retry_backoff_time = 1;
@@ -136,7 +136,7 @@ socket_initialize(struct storage_module *module)
 }
 
 static int
-socket_ping(struct storage_module *module __attribute__ ((unused)))
+socket_ping(struct storage_module *module __attribute__((unused)))
 {
     /* ping is not supported by this module */
     return 0;

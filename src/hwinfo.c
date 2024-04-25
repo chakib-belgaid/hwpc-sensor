@@ -48,7 +48,6 @@
 #define CPU_ID_REGEX "^cpu([0-9]+)$"
 #define CPU_ID_REGEX_EXPECTED_MATCHES 2
 
-
 static struct hwinfo_pkg *
 hwinfo_pkg_create(void)
 {
@@ -100,11 +99,11 @@ get_cpu_online_status(const char *cpu_dir)
 
     f = fopen(path, "r");
     if (f) {
-	if (fgets(buffer, sizeof(buffer), f)) {
-	    if (buffer[0] == '0')
-		status = 0;
-	}
-	fclose(f);
+        if (fgets(buffer, sizeof(buffer), f)) {
+            if (buffer[0] == '0')
+                status = 0;
+        }
+        fclose(f);
     }
 
     /*
@@ -171,12 +170,12 @@ do_packages_detection(struct hwinfo *hwinfo)
 
     /* extract information from online cpus */
     for (entry = readdir(dir); entry; entry = readdir(dir)) {
-	if ((entry->d_type & DT_LNK) && (entry->d_name[0] != '.')) {
-	    cpu_online = get_cpu_online_status(entry->d_name);
-	    if (!cpu_online) {
-		zsys_info("hwinfo: %s is offline and will be ignored", entry->d_name);
-		continue;
-	    }
+        if ((entry->d_type & DT_LNK) && (entry->d_name[0] != '.')) {
+            cpu_online = get_cpu_online_status(entry->d_name);
+            if (!cpu_online) {
+                zsys_info("hwinfo: %s is offline and will be ignored", entry->d_name);
+                continue;
+            }
 
             cpu_id = parse_cpu_id_from_name(entry->d_name);
             if (!cpu_id) {
@@ -269,4 +268,3 @@ hwinfo_destroy(struct hwinfo *hwinfo)
     zhashx_destroy(&hwinfo->pkgs);
     free(hwinfo);
 }
-

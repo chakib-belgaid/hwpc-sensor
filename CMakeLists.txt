@@ -44,6 +44,9 @@ if(WITH_MONGODB)
     add_compile_definitions(HAVE_MONGODB)
 endif()
 
+if(DEFINED ENV{GIT_TAG} AND DEFINED ENV{GIT_REV})
+    add_compile_definitions(VERSION_GIT_TAG="$ENV{GIT_TAG}" VERSION_GIT_REV="$ENV{GIT_REV}")
+endif()
 
 add_executable(hwpc-sensor "${SENSOR_SOURCES}")
 target_include_directories(hwpc-sensor SYSTEM PRIVATE  "${CZMQ_INCLUDE_DIRS}" "${JSONC_INCLUDE_DIRS}" "${MONGOC_INCLUDE_DIRS}")

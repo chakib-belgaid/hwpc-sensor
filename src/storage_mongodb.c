@@ -201,7 +201,7 @@ mongodb_store_report(struct storage_module *module, struct payload *payload)
 }
 
 static int
-mongodb_deinitialize(struct storage_module *module __attribute__ ((unused)))
+mongodb_deinitialize(struct storage_module *module __attribute__((unused)))
 {
     struct mongodb_context *ctx = module->context;
 
@@ -255,4 +255,3 @@ error:
     free(module);
     return NULL;
 }
-

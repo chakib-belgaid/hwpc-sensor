@@ -44,8 +44,7 @@
 /*
  * csv_config stores the required information for the module.
  */
-struct csv_config
-{
+struct csv_config {
     const char *sensor_name;
     const char *output_dir;
 };
@@ -53,8 +52,7 @@ struct csv_config
 /*
  * csv_context stores the context of the module.
  */
-struct csv_context
-{
+struct csv_context {
     struct csv_config config;
     zhashx_t *groups_fd; /* char *group_name -> FILE *fd */
     zhashx_t *groups_events; /* char *group_name -> zlistx_t *group_events */
@@ -63,7 +61,7 @@ struct csv_context
 /*
  * storage_csv_create creates and configure a csv storage module..
  */
-struct storage_module *storage_csv_create(struct config *config);
+struct storage_module *
+storage_csv_create(struct config *config);
 
 #endif /* CSV_H */
-

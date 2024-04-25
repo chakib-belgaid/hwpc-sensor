@@ -37,6 +37,7 @@
 /*
  * storage_null_create creates and configure a null storage module.
  */
-struct storage_module *storage_null_create(struct config *config);
+struct storage_module *
+storage_null_create(struct config *config);
 
 #endif /* STORAGE_NULL_H */

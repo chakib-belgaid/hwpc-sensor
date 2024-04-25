@@ -156,4 +156,3 @@ events_group_destroy(struct events_group **group)
         free(*group);
     }
 }
-

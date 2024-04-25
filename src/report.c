@@ -66,7 +66,7 @@ static struct report_context *
 report_context_create(struct report_config *config, zsock_t *pipe)
 {
     struct report_context *ctx = malloc(sizeof(struct report_context));
-    
+
     if (!ctx)
         return NULL;
 
@@ -75,7 +75,7 @@ report_context_create(struct report_config *config, zsock_t *pipe)
     ctx->reporting = zsock_new_pull("inproc://reporting");
     ctx->poller = zpoller_new(ctx->pipe, ctx->reporting, NULL);
     ctx->config = config;
-    
+
     return ctx;
 }
 
@@ -98,8 +98,7 @@ handle_pipe(struct report_context *ctx)
     if (streq(command, "$TERM")) {
         ctx->terminated = true;
         zsys_info("reporting: bye!");
-    }
-    else {
+    } else {
         zsys_error("reporting: invalid pipe command: %s", command);
     }
 
@@ -112,7 +111,7 @@ handle_reporting(struct report_context *ctx)
     struct payload *payload = NULL;
 
     zsock_recv(ctx->reporting, "p", &payload);
-    
+
     if (!payload)
         return;
 
@@ -128,7 +127,7 @@ reporting_actor(zsock_t *pipe, void *args)
 {
     struct report_context *ctx = report_context_create(args, pipe);
     zsock_t *which = NULL;
-   
+
     if (!ctx) {
         zsys_error("reporting: cannot create context");
         return;
@@ -145,12 +144,10 @@ reporting_actor(zsock_t *pipe, void *args)
 
         if (which == ctx->pipe) {
             handle_pipe(ctx);
-        }
-        else if (which == ctx->reporting) {
+        } else if (which == ctx->reporting) {
             handle_reporting(ctx);
         }
     }
 
     report_context_destroy(ctx);
 }
-

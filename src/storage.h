@@ -29,74 +29,78 @@
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef TARGET_H
-#define TARGET_H
+#ifndef STORAGE_H
+#define STORAGE_H
 
-#include <czmq.h>
+#include "payload.h"
+#include "report.h"
 
 /*
- * target_type stores the supported target types.
+ * storage_type enumeration allows to select a storage type to generate.
  */
-enum target_type {
-    TARGET_TYPE_UNKNOWN = 1,
-    TARGET_TYPE_ALL = 2,
-    TARGET_TYPE_SYSTEM = 4,
-    TARGET_TYPE_KERNEL = 8,
-    TARGET_TYPE_DOCKER = 16,
-    TARGET_TYPE_KUBERNETES = 32,
-    TARGET_TYPE_LIBVIRT = 64,
-    TARGET_TYPE_LXC = 128,
-    TARGET_TYPE_EVERYTHING = 255
+enum storage_type {
+    STORAGE_UNKNOWN,
+    STORAGE_NULL,
+    STORAGE_CSV,
+    STORAGE_SOCKET,
+#ifdef HAVE_MONGODB
+    STORAGE_MONGODB,
+#endif
 };
 
 /*
- * target_types_name stores the name (as string) of the supported target types.
+ * storage_types_name stores the name (as string) of the supported storage types.
  */
-extern const char *target_types_name[];
+extern const char *storage_types_name[];
 
 /*
- * target stores various information about the target.
+ * storage_module is a generic interface for storage modules.
  */
-struct target {
-    enum target_type type;
-    const char *cgroup_basedir;
-    char *cgroup_path;
+struct storage_module {
+    enum storage_type type;
+    void *context;
+    bool is_initialized;
+    int (*initialize)(struct storage_module *self);
+    int (*ping)(struct storage_module *self);
+    int (*store_report)(struct storage_module *self, struct payload *payload);
+    int (*deinitialize)(struct storage_module *self);
+    void (*destroy)(struct storage_module *self);
 };
 
 /*
- * target_detect_type returns the target type of the given cgroup path.
+ * storage_module_get_type returns the type of the given storage module name.
  */
-enum target_type
-target_detect_type(const char *cgroup_path);
+enum storage_type
+storage_module_get_type(const char *type_name);
 
 /*
- * target_validate_type validate the target type of the given cgroup path.
+ * storage_module_initialize initialize the storage module.
  */
 int
-target_validate_type(enum target_type type, const char *cgroup_path);
+storage_module_initialize(struct storage_module *module);
 
 /*
- * target_create allocate the resources and configure the target.
+ * storage_module_ping test if the storage module is working.
  */
-struct target *
-target_create(enum target_type type, const char *cgroup_basedir, const char *cgroup_path);
+int
+storage_module_ping(struct storage_module *module);
 
 /*
- * target_resolve_real_name resolve and return the real name of the given target.
+ * storage_module_store_report store a report using the storage module.
  */
-char *
-target_resolve_real_name(struct target *target);
+int
+storage_module_store_report(struct storage_module *module, struct payload *payload);
 
 /*
- * target_destroy free the allocated resources for the target.
+ * storage_module_deinitialize deinitialize the storage module.
+ */
+int
+storage_module_deinitialize(struct storage_module *module);
+
+/*
+ * storage_module_destroy free the allocated ressources for the storage module.
  */
 void
-target_destroy(struct target *target);
+storage_module_destroy(struct storage_module *module);
 
-/*
- * target_discover_running returns a list of running targets.
- */
-int
-target_discover_running(const char *base_path, enum target_type type_mask, zhashx_t *targets);
-
-#endif /* TARGET_H */
+#endif /* STORAGE_H */

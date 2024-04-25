@@ -37,12 +37,13 @@
 /*
  * target_kubernetes_validate check if the cgroup path lead to a valid Kubernetes target.
  */
-int target_kubernetes_validate(const char *cgroup_path);
+int
+target_kubernetes_validate(const char *cgroup_path);
 
 /*
  * target_kubernetes_resolve_name resolve and return the real name of the given target.
  */
-char *target_kubernetes_resolve_name(struct target *target);
+char *
+target_kubernetes_resolve_name(struct target *target);
 
 #endif /* TARGET_KUBERNETES_H */
-

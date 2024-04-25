@@ -35,42 +35,42 @@
 #include <stddef.h>
 #include <czmq.h>
 
-
 /*
  * hwinfo_pkg stores information about the package.
  */
-struct hwinfo_pkg
-{
+struct hwinfo_pkg {
     zlistx_t *cpus_id; /* char *cpu_id */
 };
 
 /*
  * hwinfo stores information about the machine hardware.
  */
-struct hwinfo
-{
+struct hwinfo {
     zhashx_t *pkgs; /* char *pkg_id -> struct hwinfo_pkg *pkg */
 };
 
 /*
  * hwinfo_create allocate the needed ressources.
  */
-struct hwinfo *hwinfo_create(void);
+struct hwinfo *
+hwinfo_create(void);
 
 /*
  * hwinfo_detect discover and store the machine hardware topology.
  */
-int hwinfo_detect(struct hwinfo *hwinfo);
+int
+hwinfo_detect(struct hwinfo *hwinfo);
 
 /*
-* hwinfo_dup duplicate the hwinfo struct and its members.
+ * hwinfo_dup duplicate the hwinfo struct and its members.
  */
-struct hwinfo *hwinfo_dup(struct hwinfo *hwinfo);
+struct hwinfo *
+hwinfo_dup(struct hwinfo *hwinfo);
 
 /*
  * hwinfo_destroy free the allocated memory to store the machine topology.
  */
-void hwinfo_destroy(struct hwinfo *hwinfo);
+void
+hwinfo_destroy(struct hwinfo *hwinfo);
 
 #endif /* HWINFO_H */
-
