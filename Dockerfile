@@ -14,6 +14,10 @@ RUN adduser -D packager  \
 
 USER packager
 
+RUN sed -i "s/pkgver=0.0.0/pkgver=$GIT_TAG/g" APKBUILD \
+    && sed -i "s/pkgrel=0/pkgrel=$GIT_REV/g" APKBUILD \
+    && abuild -r
+
 RUN abuild-keygen -a -i -n 
 RUN abuild -r 
 # RUN abuild -r

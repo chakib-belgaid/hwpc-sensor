@@ -17,10 +17,7 @@ install="$pkgname.post-install"
 prepare() {
     # Replace with proper prepare command(s)
     :
-    pkgname=$GIT_TAG
-    pkgver=$GIT_REV
-    echo "GIT_TAG is $git_tag"
-    echo "GIT_REV is $git_rev"
+
     if [ -d "libpfm4" ]; then
         rm -rf "libpfm4"
     fi
