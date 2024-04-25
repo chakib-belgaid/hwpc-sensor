@@ -1,10 +1,14 @@
 ARG ALPINE_VERSION=3.12
 ARG GIT_TAG="undefined"
 ARG GIT_REV="undefined"
+
+ENV GIT_TAG=${GIT_TAG}
+ENV GIT_REV=${GIT_REV}
+ENV ALPINE_VERSION=${ALPINE_VERSION}
 FROM alpine:${ALPINE_VERSION}
 WORKDIR /home/packager
-ENV GIT_TAG=$GIT_TAG
-ENV GIT_REV=$GIT_REV
+
+RUN echo  "------------- my version " ${GIT_TAG} ${GIT_REV}
 ADD APKBUILD APKBUILD
 ADD hwpc.post-install hwpc.post-install
 RUN apk update && apk add alpine-sdk build-base sudo 
@@ -13,7 +17,7 @@ RUN adduser -D packager  \
     && echo "packager ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/packager 
 
 USER packager
-RUN echo  "------------- my version " ${GIT_TAG} ${GIT_REV}
+
 RUN abuild-keygen -a -i -n 
 RUN abuild -r 
 # RUN abuild -r
