@@ -4,6 +4,7 @@
         "fts.h": "c",
         "__node_handle": "c",
         "stdio.h": "c",
-        "regex.h": "c"
+        "regex.h": "c",
+        "errno.h": "c"
     }
 }

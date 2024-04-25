@@ -120,7 +120,7 @@ FTS_OPEN(char *const *argv, int options, int (*compar)(const FTSENTRY **, const 
     FTSENTRY *tmp;
     /* Options check. */
     if (options & ~FTS_OPTIONMASK) {
-        __set_errno(EINVAL);
+        zsys_error("fts error %d", EINVAL);
         return (NULL);
     }
     /* Allocate/initialize the stream */
@@ -153,7 +153,7 @@ FTS_OPEN(char *const *argv, int options, int (*compar)(const FTSENTRY **, const 
         /* Don't allow zero-length paths. */
         size_t len = strlen(*argv);
         if (len == 0) {
-            __set_errno(ENOENT);
+            zsys_error("fts error %d", ENOENT);
             goto mem3;
         }
         p = fts_alloc(sp, *argv, len);
@@ -264,7 +264,7 @@ FTS_CLOSE(FTSOBJ *sp)
         if (saved_errno != 0) {
             /* Free up the stream pointer. */
             free(sp);
-            __set_errno(saved_errno);
+            zsys_error("fts error %d", saved_errno);
             return (-1);
         }
     }
@@ -414,7 +414,7 @@ next:
          * can distinguish between error and EOF.
          */
         free(p);
-        __set_errno(0);
+        zsys_error("fts error %d", 0);
         return (sp->fts_cur = NULL);
     }
     /* NUL terminate the pathname. */
@@ -433,7 +433,7 @@ next:
         if (FCHDIR(sp, p->fts_symfd)) {
             saved_errno = errno;
             (void) __close(p->fts_symfd);
-            __set_errno(saved_errno);
+            zsys_error("fts error %d", saved_errno);
             SET(FTS_STOP);
             return (NULL);
         }
@@ -456,7 +456,7 @@ int
 FTS_SET(FTSOBJ *sp, FTSENTRY *p, int instr)
 {
     if (instr != 0 && instr != FTS_AGAIN && instr != FTS_FOLLOW && instr != FTS_NOINSTR && instr != FTS_SKIP) {
-        __set_errno(EINVAL);
+        zsys_error("fts error %d", EINVAL);
         return (1);
     }
     p->fts_instr = instr;
@@ -468,7 +468,7 @@ FTS_CHILDREN(FTSOBJ *sp, int instr)
     FTSENTRY *p;
     int fd;
     if (instr != 0 && instr != FTS_NAMEONLY) {
-        __set_errno(EINVAL);
+        zsys_error("fts error %d", EINVAL);
         return (NULL);
     }
     /* Set current node pointer. */
@@ -477,7 +477,7 @@ FTS_CHILDREN(FTSOBJ *sp, int instr)
      * Errno set to 0 so user can distinguish empty directory from
      * an error.
      */
-    __set_errno(0);
+    zsys_error("fts error %d", 0);
     /* Fatal errors stop here. */
     if (ISSET(FTS_STOP))
         return (NULL);
@@ -664,7 +664,7 @@ fts_build(FTSOBJ *sp, int type)
                 (void) __closedir(dirp);
                 cur->fts_info = FTS_ERR;
                 SET(FTS_STOP);
-                __set_errno(saved_errno);
+                zsys_error("fts error %d", saved_errno);
                 return (NULL);
             }
             /* Did realloc() change the pointer? */
@@ -687,7 +687,7 @@ fts_build(FTSOBJ *sp, int type)
             (void) __closedir(dirp);
             cur->fts_info = FTS_ERR;
             SET(FTS_STOP);
-            __set_errno(ENAMETOOLONG);
+            zsys_error("fts error %d", ENAMETOOLONG);
             return (NULL);
         }
         p->fts_level = level;
@@ -805,7 +805,7 @@ fts_stat(FTSOBJ *sp, FTSENTRY *p, int follow)
         if (STAT(p->fts_accpath, sbp)) {
             saved_errno = errno;
             if (!LSTAT(p->fts_accpath, sbp)) {
-                __set_errno(0);
+                zsys_error("fts error %d", 0);
                 return (FTS_SLNONE);
             }
             p->fts_errno = saved_errno;
@@ -940,7 +940,7 @@ fts_palloc(FTSOBJ *sp, size_t more)
     if (sp->fts_pathlen < 0 || sp->fts_pathlen >= USHRT_MAX) {
         free(sp->fts_path);
         sp->fts_path = NULL;
-        __set_errno(ENAMETOOLONG);
+        zsys_error("fts error %d", ENAMETOOLONG);
         return (1);
     }
     p = realloc(sp->fts_path, sp->fts_pathlen);
@@ -1006,7 +1006,7 @@ fts_safe_changedir(FTSOBJ *sp, FTSENTRY *p, int fd, const char *path)
         goto bail;
     }
     if (p->fts_dev != sb.st_dev || p->fts_ino != sb.st_ino) {
-        __set_errno(ENOENT); /* disinformation */
+        zsys_error("fts error %d", ENOENT); /* disinformation */
         ret = -1;
         goto bail;
     }
@@ -1015,6 +1015,6 @@ bail:
     oerrno = errno;
     if (fd < 0)
         (void) __close(newfd);
-    __set_errno(oerrno);
+    zsys_error("fts error %d", oerrno);
     return (ret);
 }
