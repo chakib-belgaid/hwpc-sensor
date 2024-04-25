@@ -16,8 +16,9 @@ RUN adduser -D packager  \
     && echo "packager ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/packager 
 
 USER packager
-RUN export GIT_TAG1=${GIT_TAG} \
+RUN export GIT_TAG=${GIT_TAG} \
     && export GIT_REV=${GIT_REV} \
+    && echo  "------------- building version" ${GIT_TAG} ${GIT_REV} \
     && abuild-keygen -a -i -n \
     && abuild -r 
 # RUN abuild -r
