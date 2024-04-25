@@ -1,15 +1,15 @@
 # Contributor: chakib blegaid
 # Maintainer: chakib belgaid  <mohammed-chakib.belgaid@inria.fr>
 pkgname=hwpc
-pkgver=0.3
-pkgrel=12
+pkgver=0.4
+pkgrel=0
 pkgdesc="a library to access hardware performance counters on linux"
 url="www.powerapi.org/reference/sensors/hwpc-sensor/"
 arch="x86_64"
 license="BSD 3-Clause"
 depends="libsodium-dev  musl-dev autoconf snappy libtool mongo-c-driver-dev"
 depends_dev="ncurses-dev swig  python3  patch git alpine-sdk kde-dev-scripts pkgconf  "
-makedepends="cmake  czmq-dev json-c-dev linux-headers"
+makedepends="cmake  czmq-dev json-c-dev linux-headers libc-dev"
 install=""
 libdir="/home/packager/libs"
 install="$pkgname.post-install"
