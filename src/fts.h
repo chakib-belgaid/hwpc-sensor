@@ -162,7 +162,7 @@ fts_open(char *const *, int, int (*)(const FTSENT **, const FTSENT **));
 FTSENT *
 fts_read(FTS *);
 int
-fts_set(FTS *, FTSENT *, int) __THROW;
+fts_set(FTS *, FTSENT *, int);
 #else
 #ifdef __REDIRECT
 #ifndef __USE_TIME_BITS64
@@ -200,7 +200,7 @@ fts64_open(char *const *, int, int (*)(const FTSENT64 **, const FTSENT64 **));
 FTSENT64 *
 fts64_read(FTS64 *);
 int
-fts64_set(FTS64 *, FTSENT64 *, int) __THROW;
+fts64_set(FTS64 *, FTSENT64 *, int);
 #else
 #ifdef __REDIRECT
 FTSENT *__REDIRECT(fts64_children, (FTS64 *, int), __fts64_children_time64);
