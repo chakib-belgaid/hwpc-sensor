@@ -37,8 +37,7 @@
 /*
  * target_type stores the supported target types.
  */
-enum target_type
-{
+enum target_type {
     TARGET_TYPE_UNKNOWN = 1,
     TARGET_TYPE_ALL = 2,
     TARGET_TYPE_SYSTEM = 4,
@@ -58,8 +57,7 @@ extern const char *target_types_name[];
 /*
  * target stores various information about the target.
  */
-struct target
-{
+struct target {
     enum target_type type;
     const char *cgroup_basedir;
     char *cgroup_path;
@@ -68,32 +66,37 @@ struct target
 /*
  * target_detect_type returns the target type of the given cgroup path.
  */
-enum target_type target_detect_type(const char *cgroup_path);
+enum target_type
+target_detect_type(const char *cgroup_path);
 
 /*
  * target_validate_type validate the target type of the given cgroup path.
  */
-int target_validate_type(enum target_type type, const char *cgroup_path);
+int
+target_validate_type(enum target_type type, const char *cgroup_path);
 
 /*
  * target_create allocate the resources and configure the target.
  */
-struct target *target_create(enum target_type type, const char *cgroup_basedir, const char *cgroup_path);
+struct target *
+target_create(enum target_type type, const char *cgroup_basedir, const char *cgroup_path);
 
 /*
  * target_resolve_real_name resolve and return the real name of the given target.
  */
-char *target_resolve_real_name(struct target *target);
+char *
+target_resolve_real_name(struct target *target);
 
 /*
  * target_destroy free the allocated resources for the target.
  */
-void target_destroy(struct target *target);
+void
+target_destroy(struct target *target);
 
 /*
  * target_discover_running returns a list of running targets.
  */
-int target_discover_running(const char *base_path, enum target_type type_mask, zhashx_t *targets);
+int
+target_discover_running(const char *base_path, enum target_type type_mask, zhashx_t *targets);
 
 #endif /* TARGET_H */
-
