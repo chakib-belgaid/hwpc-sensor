@@ -13,7 +13,7 @@ RUN adduser -D packager  \
     && echo "packager ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/packager 
 
 USER packager
-
+RUN echo  "------------- my version " ${GIT_TAG} ${GIT_REV}
 RUN abuild-keygen -a -i -n 
 
 RUN sed -i "s/pkgver=0.0.0/pkgver=$GIT_TAG/g" APKBUILD \
