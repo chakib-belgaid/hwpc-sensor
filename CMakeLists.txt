@@ -33,7 +33,7 @@ set(SENSOR_SOURCES
     src/sensor.c
 )
 
-find_package(LibPFM REQUIRED)
+# find_package(LibPFM REQUIRED)
 find_package(PkgConfig)
 pkg_check_modules(CZMQ REQUIRED libczmq)
 pkg_check_modules(JSONC REQUIRED json-c)
