@@ -1,8 +1,8 @@
 # Contributor: chakib blegaid
 # Maintainer: chakib belgaid  <mohammed-chakib.belgaid@inria.fr>
 pkgname=hwpc
-pkgver=""
-pkgrel=""
+pkgver=0.0.0
+pkgrel=0
 pkgdesc="a library to access hardware performance counters on linux"
 url="www.powerapi.org/reference/sensors/hwpc-sensor/"
 arch="x86_64"
