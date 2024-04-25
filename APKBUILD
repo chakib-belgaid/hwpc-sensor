@@ -1,8 +1,8 @@
 # Contributor: chakib blegaid
 # Maintainer: chakib belgaid  <mohammed-chakib.belgaid@inria.fr>
 pkgname=hwpc
-pkgver=$GIT_TAG
-pkgrel=$GIT_REV
+pkgver=""
+pkgrel=""
 pkgdesc="a library to access hardware performance counters on linux"
 url="www.powerapi.org/reference/sensors/hwpc-sensor/"
 arch="x86_64"
@@ -17,6 +17,10 @@ install="$pkgname.post-install"
 prepare() {
     # Replace with proper prepare command(s)
     :
+    local git_tag=$GIT_TAG
+    local git_rev=$GIT_REV
+    echo "GIT_TAG is $git_tag"
+    echo "GIT_REV is $git_rev"
     if [ -d "libpfm4" ]; then
         rm -rf "libpfm4"
     fi
