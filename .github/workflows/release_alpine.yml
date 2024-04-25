@@ -7,8 +7,8 @@ on:
 
 env:
     ALPINE_VERSION: 3.12
-    Package_version: 0.4
-    Package_release: 0
+    GIT_TAG: 0.4
+    GIT_REV: 1
 
 jobs:
     build:
@@ -43,9 +43,9 @@ jobs:
             - name: Run Docker image
               run: docker run --name runner hwpc-alpine:${{ env.ALPINE_VERSION }}
             - name: retrieve the data from the container
-              run: docker cp runner:/home/packager/packages/home/x86_64/hwpc-${{env.Package_version}}-r${{env.Package_release}}.apk .
+              run: docker cp runner:/home/packager/packages/home/x86_64/hwpc-${{env.GIT_TAG}}-r${{env.GIT_REV}}.apk .
             - name: publish the apk file to github
               uses: actions/upload-artifact@v3
               with:
-                  name: hwpc-${{env.Package_version}}-r${{env.Package_release}}.apk
-                  path: hwpc-${{env.Package_version}}-r${{env.Package_release}}.apk
+                  name: hwpc-${{env.GIT_TAG}}-r${{env.GIT_REV}}.apk
+                  path: hwpc-${{env.GIT_TAG}}-r${{env.GIT_REV}}.apk
