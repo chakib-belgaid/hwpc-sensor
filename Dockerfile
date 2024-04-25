@@ -1,8 +1,8 @@
 ARG ALPINE_VERSION=3.12
-ARG GIT_TAG="undefined"
-ARG GIT_REV="undefined"
 FROM alpine:${ALPINE_VERSION}
 WORKDIR /home/packager
+ENV GIT_TAG="undefined"
+ENV GIT_REV="undefined"
 ADD APKBUILD APKBUILD
 ADD hwpc.post-install hwpc.post-install
 RUN apk update && apk add alpine-sdk build-base sudo 
