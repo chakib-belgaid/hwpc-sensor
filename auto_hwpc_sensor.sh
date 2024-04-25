@@ -9,6 +9,7 @@ get_events() {
         ["Coffe Lake"]="CPU_CLK_THREAD_UNHALTED:REF_P, CPU_CLK_THREAD_UNHALTED:THREAD_P, LLC_MISSES,INSTRUCTIONS_RETIRED"
         ["Sandy Bridge"]="CPU_CLK_UNHALTED:REF_P, CPU_CLK_UNHALTED:THREAD_P, LLC_MISSES,INSTRUCTIONS_RETIRED"
         ["Comet Lake"]="CPU_CLK_UNHALTED:REF_P, CPU_CLK_UNHALTED:THREAD_P, LLC_MISSES,INSTRUCTIONS_RETIRED"
+        ["Broadwell"]="CPU_CLK_UNHALTED:REF_P, CPU_CLK_UNHALTED:THREAD_P, LLC_MISSES,INSTRUCTIONS_RETIRED"
         ["AMD"]='CYCLES_NOT_IN_HALT, RETIRED_INSTRUCTIONS, RETIRED_UOPS '
     )
     logs=$(hwpc-sensor)
@@ -25,6 +26,8 @@ get_events() {
         cpu_model="Sandy Bridge"
     elif [[ $logs == *"comet lake"* ]]; then
         cpu_model="Comet Lake"
+    elif [[ $logs == *"Broadwell"* ]]; then
+        cpu_model="Broadwell"
     else
         echo "Unknown CPU family"
         exit 1
