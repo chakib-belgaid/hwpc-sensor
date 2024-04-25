@@ -3,8 +3,8 @@ ARG GIT_TAG="undefined"
 ARG GIT_REV="undefined"
 FROM alpine:${ALPINE_VERSION}
 WORKDIR /home/packager
-ENV GIT_TAG=${GIT_TAG}
-ENV GIT_REV=${GIT_REV}
+ENV GIT_TAG=$GIT_TAG
+ENV GIT_REV=$GIT_REV
 ADD APKBUILD APKBUILD
 ADD hwpc.post-install hwpc.post-install
 RUN apk update && apk add alpine-sdk build-base sudo 
