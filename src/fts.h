@@ -151,7 +151,7 @@ typedef struct _ftsent64 {
     char fts_name[1]; /* file name */
 } FTSENT64;
 #endif
-__BEGIN_DECLS
+// __BEGIN_DECLS
 #ifndef __USE_FILE_OFFSET64
 FTSENT *
 fts_children(FTS *, int);
@@ -217,5 +217,5 @@ int __REDIRECT_NTH(fts64_set, (FTS64 *, FTSENT64 *, int), __fts64_set_time64);
 #endif
 #endif
 #endif
-__END_DECLS
+// __END_DECLS
 #endif /* fts.h */
