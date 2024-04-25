@@ -5,9 +5,7 @@ ARG GIT_REV="undefined"
 
 FROM alpine:${ALPINE_VERSION}
 WORKDIR /home/packager
-ENV GIT_TAG1=${GIT_TAG}
-ENV GIT_REV=${GIT_REV}
-ENV ALPINE_VERSION=${ALPINE_VERSION}
+
 
 RUN echo  "------------- my version " ${GIT_TAG1} ${GIT_REV}
 ADD APKBUILD APKBUILD
@@ -18,7 +16,8 @@ RUN adduser -D packager  \
     && echo "packager ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/packager 
 
 USER packager
-
-RUN abuild-keygen -a -i -n 
-RUN abuild -r 
+RUN export GIT_TAG1=${GIT_TAG} \
+    && export GIT_REV=${GIT_REV} \
+    && abuild-keygen -a -i -n \
+    && abuild -r 
 # RUN abuild -r
