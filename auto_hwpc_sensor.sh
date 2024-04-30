@@ -14,19 +14,20 @@ get_events() {
     )
     logs=$(hwpc-sensor)
     logs=${logs,,}
-    if [[ $logs == *"amd"* ]]; then
+    logs_lower=$(echo "$logs" | tr '[:upper:]' '[:lower:]')
+    if [[ $logs_lower == *"amd"* ]]; then
         cpu_model="AMD"
-    elif [[ $logs == *"skylake"* ]]; then
+    elif [[ $logs_lower == *"skylake"* ]]; then
         cpu_model="Skylake"
-    elif [[ $logs == *"whiskey lake"* ]]; then
+    elif [[ $logs_lower == *"whiskey lake"* ]]; then
         cpu_model="Whiskey Lake"
-    elif [[ $logs == *"coffee lake"* ]]; then
+    elif [[ $logs_lower == *"coffee lake"* ]]; then
         cpu_model="Coffee Lake"
-    elif [[ $logs == *"sandy bridge"* ]]; then
+    elif [[ $logs_lower == *"sandy bridge"* ]]; then
         cpu_model="Sandy Bridge"
-    elif [[ $logs == *"comet lake"* ]]; then
+    elif [[ $logs_lower == *"comet lake"* ]]; then
         cpu_model="Comet Lake"
-    elif [[ $logs == *"Broadwell"* ]]; then
+    elif [[ $logs_lower == *"broadwell"* ]]; then
         cpu_model="Broadwell"
     else
         echo "Unknown CPU family"
