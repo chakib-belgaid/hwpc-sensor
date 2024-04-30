@@ -12,7 +12,7 @@ get_events() {
         ["Broadwell"]="CPU_CLK_UNHALTED:REF_P, CPU_CLK_UNHALTED:THREAD_P, LLC_MISSES,INSTRUCTIONS_RETIRED"
         ["AMD"]='CYCLES_NOT_IN_HALT, RETIRED_INSTRUCTIONS, RETIRED_UOPS '
     )
-    logs=$(hwpc-sensor)
+    logs=$(hwpc-sensor 2>&1)
     logs=${logs,,}
     logs_lower=$(echo "$logs" | tr '[:upper:]' '[:lower:]')
     if [[ $logs_lower == *"amd"* ]]; then
@@ -27,7 +27,7 @@ get_events() {
         cpu_model="Sandy Bridge"
     elif [[ $logs_lower == *"comet lake"* ]]; then
         cpu_model="Comet Lake"
-    elif [[ $logs_lower == *"broadwell"* ]]; then
+        ]
         cpu_model="Broadwell"
     else
         echo "Unknown CPU family"
