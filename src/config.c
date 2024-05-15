@@ -55,6 +55,7 @@ config_create(void)
     config->sensor.frequency = 1000;
     config->sensor.cgroup_basepath = DEFAULT_CGROUP_BASEPATH;
     config->sensor.name = NULL;
+    config->sensor.ignore_unsupported_events = 0;
 
     /* storage default config */
     config->storage.type = STORAGE_CSV;
@@ -111,7 +112,7 @@ parse_frequency(const char *str, unsigned int *frequency)
 }
 
 static int
-parse_event_array(bson_iter_t *iter, struct events_group *current_events_group)
+parse_event_array(bson_iter_t *iter, struct events_group *current_events_group, int ignore_unsupported_events)
 {
     while (bson_iter_next(iter)) {
         switch (bson_iter_type(iter)) {
@@ -121,8 +122,13 @@ parse_event_array(bson_iter_t *iter, struct events_group *current_events_group)
                 return -1;
             }
             if (events_group_append_event(current_events_group, bson_iter_utf8(iter, NULL))) {
-                zsys_error("config: event '%s' is invalid or unsupported by this machine", bson_iter_utf8(iter, NULL));
-                return -1;
+                if (ignore_unsupported_events) {
+                    zsys_warning("config: event '%s' is invalid or unsupported by this machine therefore it will be ignored",
+                                 bson_iter_utf8(iter, NULL));
+                } else {
+                    zsys_error("config: event '%s' is invalid or unsupported by this machine", bson_iter_utf8(iter, NULL));
+                    return -1;
+                }
             }
             break;
         default:
@@ -184,7 +190,7 @@ iter_on_event_group_config(bson_iter_t *iter, struct config *config, char *group
                 return -1;
             case BSON_TYPE_ARRAY:
                 bson_iter_recurse(&child_iter, &event_array_iter);
-                if (parse_event_array(&event_array_iter, current_events_group))
+                if (parse_event_array(&event_array_iter, current_events_group, config->sensor.ignore_unsupported_events))
                     return -1;
                 break;
             default:
@@ -250,6 +256,10 @@ iter_on_root_config(bson_iter_t *iter, struct config *config)
         case BSON_TYPE_BOOL:
             if (strcmp(key_name, "verbose") == 0) {
                 config->sensor.verbose++;
+                break;
+            }
+            if (strcmp(key_name, "ignore_unsupported_events") == 0) {
+                config->sensor.ignore_unsupported_events++;
                 break;
             }
             zsys_error("config: invalid boolean value for %s", key_name);
@@ -360,10 +370,13 @@ config_setup_from_cli(int argc, char **argv, struct config *config)
     zhashx_set_duplicator(config->events.containers, (zhashx_duplicator_fn *) events_group_dup);
     zhashx_set_destructor(config->events.containers, (zhashx_destructor_fn *) events_group_destroy);
 
-    while ((c = getopt(argc, argv, "vf:p:n:s:c:e:or:U:D:C:P:")) != -1) {
+    while ((c = getopt(argc, argv, "ivf:p:n:s:c:e:or:U:D:C:P:")) != -1) {
         switch (c) {
         case 'v':
             config->sensor.verbose++;
+            break;
+        case 'i':
+            config->sensor.ignore_unsupported_events++;
             break;
         case 'f':
             if (parse_frequency(optarg, &config->sensor.frequency)) {
@@ -410,8 +423,12 @@ config_setup_from_cli(int argc, char **argv, struct config *config)
                 goto end;
             }
             if (events_group_append_event(current_events_group, optarg)) {
-                zsys_error("config: event '%s' is invalid or unsupported by this machine", optarg);
-                goto end;
+                if (config->sensor.ignore_unsupported_events) {
+                    zsys_warning("config: event '%s' is invalid or unsupported by this machine therefore it will be ignored", optarg);
+                } else {
+                    zsys_error("config: event '%s' is invalid or unsupported by this machine", optarg);
+                    goto end;
+                }
             }
             break;
         case 'r':

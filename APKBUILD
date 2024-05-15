@@ -49,7 +49,7 @@ package() {
     # Replace with proper package command(s)
     install -Dm755 hwpc/build/hwpc-sensor "$pkgdir"/usr/bin/hwpc-sensor
     install -Dm644 "$libdir"/libpfm4/usr/local/lib/libpfm.so.4 "$pkgdir"/usr/lib/libpfm.so.4
-    install -Dm755 hwpc/auto_hwpc_sensor.sh "$pkgdir"/usr/bin/auto-hwpc-sensor
+    # install -Dm755 hwpc/auto_hwpc_sensor.sh "$pkgdir"/usr/bin/auto-hwpc-sensor
 }
 
 clean() {

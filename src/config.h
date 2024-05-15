@@ -43,6 +43,7 @@
  */
 struct config_sensor {
     unsigned int verbose;
+    unsigned int ignore_unsupported_events;
     unsigned int frequency;
     const char *cgroup_basepath;
     const char *name;
