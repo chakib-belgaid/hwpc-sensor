@@ -391,7 +391,7 @@ process_json_fields(struct config *config, json_object *root)
                 return -1;
             }
         }
-        if (!strcasecmp(key, "ignore_unsupported_events")) {
+        else if (!strcasecmp(key, "ignore_unsupported_events")) {
             if (setup_ignore_unsupported_events(config, value)) {
                 return -1;
             }

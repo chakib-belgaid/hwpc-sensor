@@ -66,3 +66,4 @@ config_intel.json
 libpfm4
 config_amd.json
 act.config.json
+config2.json
