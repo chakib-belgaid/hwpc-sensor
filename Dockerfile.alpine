@@ -6,7 +6,8 @@ WORKDIR /home/packager
 
 ARG GIT_TAG
 ARG GIT_REV 
-
+ARG BUILD_TYPE=False
+ARG MONGODB_SUPPORT=ON
 ADD APKBUILD APKBUILD
 ADD hwpc.post-install hwpc.post-install
 RUN apk update && apk add alpine-sdk build-base sudo && \

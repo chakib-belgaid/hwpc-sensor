@@ -35,8 +35,8 @@ build() {
     fi
     git clone https://github.com/chakib-belgaid/hwpc-sensor.git --branch alpine hwpc
     cd hwpc
-    cmake -B build -DCMAKE_C_FLAGS="-I$libdir/libpfm4/usr/local/include" -DCMAKE_EXE_LINKER_FLAGS="-L$libdir/libpfm4/usr/local/lib"
-    cmake --build build
+    cmake -B build -DCMAKE_C_FLAGS="-I$libdir/libpfm4/usr/local/include"  -DCMAKE_EXE_LINKER_FLAGS="-L$libdir/libpfm4/usr/local/lib"
+    cmake --build build  -DCMAKE_BUILD_TYPE="${BUILD_TYPE}"  -DWITH_MONGODB="${MONGODB_SUPPORT}" 
     echo "build done"
 }
 
