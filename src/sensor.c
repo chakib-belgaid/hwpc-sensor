@@ -37,10 +37,10 @@
 #include <sys/utsname.h>
 #include <unistd.h>
 #include <czmq.h>
-#include <bson.h>
 
 #include "version.h"
 #include "config.h"
+#include "config_cli.h"
 #include "pmu.h"
 #include "events.h"
 #include "hwinfo.h"
@@ -59,25 +59,25 @@
 static struct storage_module *
 setup_storage_module(struct config *config)
 {
-    switch (config->storage.type)
-    {
-        case STORAGE_NULL:
-            return storage_null_create(config);
-        case STORAGE_CSV:
-            return storage_csv_create(config);
-        case STORAGE_SOCKET:
-            return storage_socket_create(config);
+    switch (config->storage.type) {
+    case STORAGE_NULL:
+        return storage_null_create(config);
+    case STORAGE_CSV:
+        return storage_csv_create(config);
+    case STORAGE_SOCKET:
+        return storage_socket_create(config);
 #ifdef HAVE_MONGODB
-        case STORAGE_MONGODB:
-            return storage_mongodb_create(config);
+    case STORAGE_MONGODB:
+        return storage_mongodb_create(config);
 #endif
-        default:
-            return NULL;
+    default:
+        return NULL;
     }
 }
 
 static void
-sync_cgroups_running_monitored(struct hwinfo *hwinfo, zhashx_t *container_events_groups, const char *cgroup_basepath, zhashx_t *container_monitoring_actors)
+sync_cgroups_running_monitored(struct hwinfo *hwinfo, zhashx_t *container_events_groups, const char *cgroup_basepath,
+                               zhashx_t *container_monitoring_actors)
 {
     zhashx_t *running_targets = NULL; /* char *cgroup_path -> struct target *target */
     zactor_t *perf_monitor = NULL;
@@ -138,10 +138,6 @@ main(int argc, char **argv)
     struct target *system_target = NULL;
     struct perf_config *system_monitor_config = NULL;
     zactor_t *system_perf_monitor = NULL;
-    char *config_file_path = NULL;
-    bson_json_reader_t *reader = NULL;
-    bson_error_t error;
-    bson_t doc = BSON_INITIALIZER;
 
     signal(SIGPIPE, SIG_IGN);
 
@@ -158,8 +154,8 @@ main(int argc, char **argv)
 
     /* show Kernel information */
     if (uname(&kernel_info)) {
-	zsys_error("uname: failed to get Kernel information");
-	goto cleanup;
+	    zsys_error("uname: failed to get Kernel information");
+	    goto cleanup;
     }
     zsys_info("uname: %s %s %s %s", kernel_info.sysname, kernel_info.release, kernel_info.version, kernel_info.machine);
 
@@ -186,13 +182,8 @@ main(int argc, char **argv)
         goto cleanup;
     }
     for (pmu = zlistx_first(sys_pmu_topology->pmus); pmu; pmu = zlistx_next(sys_pmu_topology->pmus)) {
-        zsys_info("pmu: found %s '%s' having %d events, %d counters (%d general, %d fixed)",
-                pmu->info.name,
-                pmu->info.desc,
-                pmu->info.nevents,
-                pmu->info.num_cntrs + pmu->info.num_fixed_cntrs,
-                pmu->info.num_cntrs,
-                pmu->info.num_fixed_cntrs);
+        zsys_info("pmu: found %s '%s' having %d events, %d counters (%d general, %d fixed)", pmu->info.name, pmu->info.desc,
+                  pmu->info.nevents, pmu->info.num_cntrs + pmu->info.num_fixed_cntrs, pmu->info.num_cntrs, pmu->info.num_fixed_cntrs);
     }
 
     /* detect machine hardware */
@@ -209,38 +200,17 @@ main(int argc, char **argv)
     /* get application config */
     config = config_create();
     if (!config) {
-	zsys_error("config: failed to create config container");
-	goto cleanup;
+	    zsys_error("config: failed to create config container");
+	    goto cleanup;
     }
-    if (parse_config_file_path(argc, argv, &config_file_path)) {
+    if (config_setup_from_cli(argc, argv, config)) {
+        zsys_error("config: failed to parse the provided command-line arguments");
         goto cleanup;
     }
-    if (config_file_path != NULL){
-        reader = bson_json_reader_new_from_file (config_file_path, &error);
-        if (!reader) {
-            zsys_error("config: Failed to open config file \"%s\": %s\n", config_file_path, error.message);
-            goto cleanup;
-        }
-        if (bson_json_reader_read (reader, &doc, &error) < 0) {
-            zsys_error("config: Error in json parsing:\n%s\n", error.message);
-            goto cleanup;
-        }
-        if (config_setup_from_file(config, &doc)) {
-            zsys_error("config: failed to parse the provided config file");
-            goto cleanup;
-        }
-    }
-    else{
-        if (config_setup_from_cli(argc, argv, config)) {
-            zsys_error("config: failed to parse the provided command-line arguments");
-            goto cleanup;
-        }
-    }
-
     if (config_validate(config)) {
-	zsys_error("config: failed to validate config");
-	goto cleanup;
-    };
+        zsys_error("config: failed to validate config");
+        goto cleanup;
+    }
 
     /* setup storage module */
     storage = setup_storage_module(config);
@@ -254,16 +224,14 @@ main(int argc, char **argv)
     }
     if (storage_module_ping(storage)) {
         zsys_error("sensor: failed to ping storage module");
-	storage_module_deinitialize(storage);
+        storage_module_deinitialize(storage);
         goto cleanup;
     }
 
     zsys_info("sensor: configuration is valid, starting monitoring...");
 
     /* start reporting actor */
-    reporting_conf = (struct report_config){
-        .storage = storage
-    };
+    reporting_conf = (struct report_config) {.storage = storage};
     reporting = zactor_new(reporting_actor, &reporting_conf);
 
     /* create ticker publisher socket */
@@ -288,7 +256,7 @@ main(int argc, char **argv)
         /* send clock tick to monitoring actors */
         zsock_send(ticker, "s8", "CLOCK_TICK", zclock_time());
 
-        zclock_sleep((int)config->sensor.frequency);
+        zclock_sleep((int) config->sensor.frequency);
     }
 
     /* clean storage module ressources */
@@ -297,9 +265,6 @@ main(int argc, char **argv)
     ret = 0;
 
 cleanup:
-    if(reader != NULL)
-      bson_json_reader_destroy(reader);
-    bson_destroy(&doc);
     zhashx_destroy(&cgroups_running);
     zhashx_destroy(&container_monitoring_actors);
     zactor_destroy(&system_perf_monitor);
@@ -313,4 +278,3 @@ cleanup:
     zsys_shutdown();
     return ret;
 }
-

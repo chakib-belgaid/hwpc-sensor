@@ -201,7 +201,7 @@ mongodb_store_report(struct storage_module *module, struct payload *payload)
 }
 
 static int
-mongodb_deinitialize(struct storage_module *module __attribute__ ((unused)))
+mongodb_deinitialize(struct storage_module *module __attribute__((unused)))
 {
     struct mongodb_context *ctx = module->context;
 
@@ -235,7 +235,7 @@ storage_mongodb_create(struct config *config)
     if (!module)
         goto error;
 
-    ctx = mongodb_context_create(config->sensor.name, config->storage.U_flag, config->storage.D_flag, config->storage.C_flag);
+    ctx = mongodb_context_create(config->sensor.name, config->storage.mongodb.uri, config->storage.mongodb.database, config->storage.mongodb.collection);
     if (!ctx)
         goto error;
 
@@ -255,4 +255,3 @@ error:
     free(module);
     return NULL;
 }
-

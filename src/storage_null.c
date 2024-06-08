@@ -43,13 +43,13 @@ null_initialize(struct storage_module *module)
 }
 
 static int
-null_ping(struct storage_module *module __attribute__ ((unused)))
+null_ping(struct storage_module *module __attribute__((unused)))
 {
     return 0;
 }
 
 static int
-null_store_report(struct storage_module *module  __attribute__ ((unused)), struct payload *payload  __attribute__ ((unused)))
+null_store_report(struct storage_module *module __attribute__((unused)), struct payload *payload __attribute__((unused)))
 {
     return 0;
 }
@@ -62,13 +62,13 @@ null_deinitialize(struct storage_module *module)
 }
 
 static void
-null_destroy(struct storage_module *module  __attribute__ ((unused)))
+null_destroy(struct storage_module *module __attribute__((unused)))
 {
     return;
 }
 
 struct storage_module *
-storage_null_create(struct config *config  __attribute__ ((unused)))
+storage_null_create(struct config *config __attribute__((unused)))
 {
     struct storage_module *module = malloc(sizeof(struct storage_module));
 
@@ -86,4 +86,3 @@ storage_null_create(struct config *config  __attribute__ ((unused)))
 
     return module;
 }
-

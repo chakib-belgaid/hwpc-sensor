@@ -129,4 +129,3 @@ pmu_topology_detect(struct pmu_topology *topology)
 
     return 0;
 }
-

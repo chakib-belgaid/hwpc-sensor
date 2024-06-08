@@ -37,12 +37,10 @@
 #include "storage.h"
 #include "config.h"
 
-
 /*
  * mongodb_config stores the required information for the module.
  */
-struct mongodb_config
-{
+struct mongodb_config {
     const char *sensor_name;
     const char *uri;
     const char *database_name;
@@ -52,8 +50,7 @@ struct mongodb_config
 /*
  * mongodb_context stores the context of the module.
  */
-struct mongodb_context
-{
+struct mongodb_context {
     struct mongodb_config config;
     mongoc_uri_t *uri;
     mongoc_client_t *client;
@@ -63,7 +60,7 @@ struct mongodb_context
 /*
  * storage_mongodb_create creates and configure a mongodb storage module.
  */
-struct storage_module *storage_mongodb_create(struct config *config);
+struct storage_module *
+storage_mongodb_create(struct config *config);
 
 #endif /* STORAGE_MONGODB_H */
-

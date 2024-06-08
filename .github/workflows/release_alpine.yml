@@ -7,8 +7,8 @@ on:
 
 env:
     ALPINE_VERSION: 3.12
-    Package_version: 0.3
-    Package_release: 11
+    GIT_TAG: 0.4.1
+    GIT_REV: 3
 
 jobs:
     build:
@@ -18,7 +18,7 @@ jobs:
             - uses: actions/checkout@v4
             - name: Build the Docker image
               run: |
-                  docker build . --file Dockerfile --tag hwpc-alpine:${{ env.ALPINE_VERSION }} --build-arg ALPINE_VERSION=${{ env.ALPINE_VERSION }}
+                  docker build  --file Dockerfile.alpine --tag hwpc-alpine:${{ env.ALPINE_VERSION }} --build-arg ALPINE_VERSION=${{ env.ALPINE_VERSION }} --build-arg GIT_TAG=${{ env.GIT_TAG }} --build-arg GIT_REV=${{ env.GIT_REV }} --no-cache .
 
             - name: Save Docker image as a tar file
               run: docker save hwpc-alpine:${{ env.ALPINE_VERSION }} > image.tar
@@ -43,9 +43,9 @@ jobs:
             - name: Run Docker image
               run: docker run --name runner hwpc-alpine:${{ env.ALPINE_VERSION }}
             - name: retrieve the data from the container
-              run: docker cp runner:/home/packager/packages/home/x86_64/hwpc-${{env.Package_version}}-r${{env.Package_release}}.apk .
+              run: docker cp runner:/home/packager/packages/home/x86_64/hwpc-${{env.GIT_TAG}}-r${{env.GIT_REV}}.apk .
             - name: publish the apk file to github
               uses: actions/upload-artifact@v3
               with:
-                  name: hwpc-${{env.Package_version}}-r${{env.Package_release}}.apk
-                  path: hwpc-${{env.Package_version}}-r${{env.Package_release}}.apk
+                  name: hwpc-${{env.GIT_TAG}}-r${{env.GIT_REV}}.apk
+                  path: hwpc-${{env.GIT_TAG}}-r${{env.GIT_REV}}.apk

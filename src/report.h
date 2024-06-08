@@ -71,4 +71,3 @@ void report_config_destroy(struct report_config *config);
 void reporting_actor(zsock_t *pipe, void *args);
 
 #endif /* REPORT_H */
-

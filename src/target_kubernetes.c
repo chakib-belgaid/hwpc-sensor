@@ -39,11 +39,11 @@
  * CONTAINER_ID_REGEX is the regex used to extract the Docker container id from a cgroup path.
  * CONTAINER_ID_REGEX_EXPECTED_MATCHES is the number of matches expected from the regex. (num groups + 1)
  */
-#define CONTAINER_ID_REGEX \
-    "perf_event/kubepods/" \
-    "(besteffort/|burstable/|)" \
-    "(pod[a-zA-Z0-9][a-zA-Z0-9.-]+)/" /* Pod ID */ \
-    "([a-f0-9]{64})" /* Container ID */ \
+#define CONTAINER_ID_REGEX                                                                                                                 \
+    "perf_event/kubepods/"                                                                                                                 \
+    "(besteffort/|burstable/|)"                                                                                                            \
+    "(pod[a-zA-Z0-9][a-zA-Z0-9.-]+)/" /* Pod ID */                                                                                         \
+    "([a-f0-9]{64})" /* Container ID */                                                                                                    \
     "(/[a-zA-Z0-9][a-zA-Z0-9.-]+|)" /* Resource group */
 #define CONTAINER_ID_REGEX_EXPECTED_MATCHES 5
 
@@ -53,7 +53,6 @@
  */
 #define CONTAINER_NAME_REGEX "\"Name\":\"/([a-zA-Z0-9][a-zA-Z0-9_.-]+)\""
 #define CONTAINER_NAME_REGEX_EXPECTED_MATCHES 2
-
 
 int
 target_kubernetes_validate(const char *cgroup_path)
@@ -129,4 +128,3 @@ target_kubernetes_resolve_name(struct target *target)
     free(config_path);
     return target_name;
 }
-

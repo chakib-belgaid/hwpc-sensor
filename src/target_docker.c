@@ -52,7 +52,6 @@
 #define CONTAINER_NAME_REGEX "\"Name\":\"/([a-zA-Z0-9][a-zA-Z0-9_.-]+)\""
 #define CONTAINER_NAME_REGEX_EXPECTED_MATCHES 2
 
-
 int
 target_docker_validate(const char *cgroup_path)
 {
@@ -127,4 +126,3 @@ target_docker_resolve_name(struct target *target)
     free(config_path);
     return target_name;
 }
-

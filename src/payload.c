@@ -137,4 +137,3 @@ payload_destroy(struct payload *payload)
     zhashx_destroy(&payload->groups);
     free(payload);
 }
-

@@ -118,7 +118,7 @@ csv_initialize(struct storage_module *module)
 }
 
 static int
-csv_ping(struct storage_module *module __attribute__ ((unused)))
+csv_ping(struct storage_module *module __attribute__((unused)))
 {
     /* ping is not needed because the relevant checks are done when initializing the module */
     return 0;
@@ -199,7 +199,8 @@ open_group_outfile(struct csv_context *ctx, const char *group_name)
 }
 
 static int
-write_events_value(struct csv_context *ctx, const char *group, FILE *fd, uint64_t timestamp, const char *target, const char *socket, const char *cpu, zhashx_t *events)
+write_events_value(struct csv_context *ctx, const char *group, FILE *fd, uint64_t timestamp, const char *target, const char *socket,
+                   const char *cpu, zhashx_t *events)
 {
     zlistx_t *events_name = NULL;
     char buffer[CSV_LINE_BUFFER_SIZE] = {0};
@@ -214,7 +215,7 @@ write_events_value(struct csv_context *ctx, const char *group, FILE *fd, uint64_
 
     /* write static elements to buffer */
     pos += snprintf(buffer, CSV_LINE_BUFFER_SIZE, "%" PRIu64 ",%s,%s,%s,%s", timestamp, ctx->config.sensor_name, target, socket, cpu);
- 
+
     /* write dynamic elements (events) to buffer */
     for (event_name = zlistx_first(events_name); event_name; event_name = zlistx_next(events_name)) {
         event_value = zhashx_lookup(events, event_name);
@@ -245,8 +246,8 @@ csv_store_report(struct storage_module *module, struct payload *payload)
     struct payload_cpu_data *cpu_data = NULL;
     const char *cpu_id = NULL;
 
-    /* 
-     * write report into csv file as following: 
+    /*
+     * write report into csv file as following:
      * timestamp,sensor,target,socket,cpu,INSTRUCTIONS_RETIRED,LLC_MISSES
      * 1538327257673,grvingt-64,system,0,56,5996,108
      */
@@ -274,7 +275,8 @@ csv_store_report(struct storage_module *module, struct payload *payload)
                     }
                     write_header = false;
                 }
-                if (write_events_value(ctx, group_name, group_fd, payload->timestamp, payload->target_name, pkg_id, cpu_id, cpu_data->events)) {
+                if (write_events_value(ctx, group_name, group_fd, payload->timestamp, payload->target_name, pkg_id, cpu_id,
+                                       cpu_data->events)) {
                     zsys_error("csv: failed to write report to file for group=%s timestamp=%" PRIu64, group_name, payload->timestamp);
                     return -1;
                 }
@@ -311,7 +313,7 @@ storage_csv_create(struct config *config)
     if (!module)
         goto error;
 
-    ctx = csv_context_create(config->sensor.name, config->storage.U_flag);
+    ctx = csv_context_create(config->sensor.name, config->storage.csv.outdir);
     if (!ctx)
         goto error;
 
@@ -331,4 +333,3 @@ error:
     free(module);
     return NULL;
 }
-

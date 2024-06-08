@@ -33,7 +33,8 @@
 #define CONFIG_H
 
 #include <czmq.h>
-#include <bson.h>
+#include <limits.h>
+#include <netdb.h>
 
 #include "events.h"
 #include "storage.h"
@@ -41,31 +42,43 @@
 /*
  * config_sensor stores sensor specific config.
  */
-struct config_sensor
-{
+struct config_sensor {
     unsigned int verbose;
+    unsigned int ignore_unsupported_events;
     unsigned int frequency;
-    const char *cgroup_basepath;
-    const char *name;
+    char cgroup_basepath[PATH_MAX];
+    char name[HOST_NAME_MAX];
 };
 
 /*
  * config_storage stores storage specific config.
  */
-struct config_storage
-{
+struct config_storage {
     enum storage_type type;
-    const char *U_flag;
-    const char *D_flag;
-    const char *C_flag;
-    int P_flag;
+    union {
+        struct {
+            char outdir[PATH_MAX];
+        } csv;
+
+        struct {
+            char hostname[HOST_NAME_MAX];
+            char port[NI_MAXSERV];
+        } socket;
+
+        #ifdef HAVE_MONGODB
+        struct {
+            char uri[PATH_MAX];
+            char database[NAME_MAX];
+            char collection[NAME_MAX];
+        } mongodb;
+        #endif
+    };
 };
 
 /*
  * config_events stores events specific config.
  */
-struct config_events
-{
+struct config_events {
     zhashx_t *system; /* char *group_name -> struct events_group *group */
     zhashx_t *containers; /* char *group_name -> struct events_group *group */
 };
@@ -73,8 +86,7 @@ struct config_events
 /*
  * config stores the application configuration.
  */
-struct config
-{
+struct config {
     struct config_sensor sensor;
     struct config_storage storage;
     struct config_events events;
@@ -83,32 +95,19 @@ struct config
 /*
  * config_create allocate the required resources and setup the default config.
  */
-struct config *config_create(void);
-
-/*
- * parse_config_file extract the config file path from command line arguments.
- */
-int parse_config_file_path(int argc, char **argv, char ** config_file_path);
-
-/*
- * config_setup_from_cli parse option from a configuration file options and setup the global config.
- */
-int config_setup_from_file(struct config *config, bson_t * doc);
-
-/*
- * config_setup_from_cli parse the command-line options and setup the global config.
- */
-int config_setup_from_cli(int argc, char **argv, struct config *config);
+struct config *
+config_create(void);
 
 /*
  * config_validate check the validity of the given config.
  */
-int config_validate(struct config *config);
+int
+config_validate(struct config *config);
 
 /*
  * config_destroy free the allocated memory for the storage of the global config.
  */
-void config_destroy(struct config *config);
+void
+config_destroy(struct config *config);
 
 #endif /* CONFIG_H */
-

@@ -38,8 +38,7 @@
 /*
  * storage_type enumeration allows to select a storage type to generate.
  */
-enum storage_type
-{
+enum storage_type {
     STORAGE_UNKNOWN,
     STORAGE_NULL,
     STORAGE_CSV,
@@ -57,8 +56,7 @@ extern const char *storage_types_name[];
 /*
  * storage_module is a generic interface for storage modules.
  */
-struct storage_module
-{
+struct storage_module {
     enum storage_type type;
     void *context;
     bool is_initialized;
@@ -72,32 +70,37 @@ struct storage_module
 /*
  * storage_module_get_type returns the type of the given storage module name.
  */
-enum storage_type storage_module_get_type(const char *type_name);
+enum storage_type
+storage_module_get_type(const char *type_name);
 
 /*
  * storage_module_initialize initialize the storage module.
  */
-int storage_module_initialize(struct storage_module *module);
+int
+storage_module_initialize(struct storage_module *module);
 
 /*
  * storage_module_ping test if the storage module is working.
  */
-int storage_module_ping(struct storage_module *module);
+int
+storage_module_ping(struct storage_module *module);
 
 /*
  * storage_module_store_report store a report using the storage module.
  */
-int storage_module_store_report(struct storage_module *module, struct payload *payload);
+int
+storage_module_store_report(struct storage_module *module, struct payload *payload);
 
 /*
  * storage_module_deinitialize deinitialize the storage module.
  */
-int storage_module_deinitialize(struct storage_module *module);
+int
+storage_module_deinitialize(struct storage_module *module);
 
 /*
  * storage_module_destroy free the allocated ressources for the storage module.
  */
-void storage_module_destroy(struct storage_module *module);
+void
+storage_module_destroy(struct storage_module *module);
 
 #endif /* STORAGE_H */
-

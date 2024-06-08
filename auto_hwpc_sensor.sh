@@ -12,21 +12,22 @@ get_events() {
         ["Broadwell"]="CPU_CLK_UNHALTED:REF_P, CPU_CLK_UNHALTED:THREAD_P, LLC_MISSES,INSTRUCTIONS_RETIRED"
         ["AMD"]='CYCLES_NOT_IN_HALT, RETIRED_INSTRUCTIONS, RETIRED_UOPS '
     )
-    logs=$(hwpc-sensor)
+    logs=$(hwpc-sensor 2>&1)
     logs=${logs,,}
-    if [[ $logs == *"amd"* ]]; then
+    logs_lower=$(echo "$logs" | tr '[:upper:]' '[:lower:]')
+    if [[ $logs_lower == *"amd"* ]]; then
         cpu_model="AMD"
-    elif [[ $logs == *"skylake"* ]]; then
+    elif [[ $logs_lower == *"skylake"* ]]; then
         cpu_model="Skylake"
-    elif [[ $logs == *"whiskey lake"* ]]; then
+    elif [[ $logs_lower == *"whiskey lake"* ]]; then
         cpu_model="Whiskey Lake"
-    elif [[ $logs == *"coffee lake"* ]]; then
+    elif [[ $logs_lower == *"coffee lake"* ]]; then
         cpu_model="Coffee Lake"
-    elif [[ $logs == *"sandy bridge"* ]]; then
+    elif [[ $logs_lower == *"sandy bridge"* ]]; then
         cpu_model="Sandy Bridge"
-    elif [[ $logs == *"comet lake"* ]]; then
+    elif [[ $logs_lower == *"comet lake"* ]]; then
         cpu_model="Comet Lake"
-    elif [[ $logs == *"Broadwell"* ]]; then
+        ]
         cpu_model="Broadwell"
     else
         echo "Unknown CPU family"

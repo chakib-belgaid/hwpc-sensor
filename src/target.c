@@ -35,34 +35,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <dirent.h>
+#include <unistd.h>
 
 #include "target.h"
 #include "target_docker.h"
 #include "target_kubernetes.h"
 
-#define _XOPEN_SOURCE 500
-#include <ftw.h>
-#include <limits.h>
-
 const char *target_types_name[] = {
-    [TARGET_TYPE_UNKNOWN] = "unknown",
-    [TARGET_TYPE_ALL] = "all",
-    [TARGET_TYPE_SYSTEM] = "system",
-    [TARGET_TYPE_KERNEL] = "kernel",
-    [TARGET_TYPE_DOCKER] = "docker",
-    [TARGET_TYPE_KUBERNETES] = "k8s",
-    [TARGET_TYPE_LIBVIRT] = "libvirt",
-    [TARGET_TYPE_LXC] = "lxc",
+    [TARGET_TYPE_UNKNOWN] = "unknown", [TARGET_TYPE_ALL] = "all",        [TARGET_TYPE_SYSTEM] = "system",   [TARGET_TYPE_KERNEL] = "kernel",
+    [TARGET_TYPE_DOCKER] = "docker",   [TARGET_TYPE_KUBERNETES] = "k8s", [TARGET_TYPE_LIBVIRT] = "libvirt", [TARGET_TYPE_LXC] = "lxc",
 };
-
-
-// Define a struct to hold context for the callback function
-struct NftwContext {
-    const char *base_path;
-    enum target_type type_mask;
-    zhashx_t *targets;
-};
-
 
 enum target_type
 target_detect_type(const char *cgroup_path)
@@ -93,7 +76,7 @@ target_detect_type(const char *cgroup_path)
 
     /* LXC (running containers) */
     if (strstr(cgroup_path, "perf_event/lxc"))
-	return TARGET_TYPE_LXC;
+        return TARGET_TYPE_LXC;
 
     return TARGET_TYPE_UNKNOWN;
 }
@@ -102,15 +85,15 @@ int
 target_validate_type(enum target_type type, const char *cgroup_path)
 {
     switch (type) {
-        case TARGET_TYPE_DOCKER:
-            return target_docker_validate(cgroup_path);
+    case TARGET_TYPE_DOCKER:
+        return target_docker_validate(cgroup_path);
 
-        case TARGET_TYPE_KUBERNETES:
-            return target_kubernetes_validate(cgroup_path);
+    case TARGET_TYPE_KUBERNETES:
+        return target_kubernetes_validate(cgroup_path);
 
-        default:
-            /* other types does not need a validation */
-            return true;
+    default:
+        /* other types does not need a validation */
+        return true;
     }
 }
 
@@ -135,23 +118,23 @@ target_resolve_real_name(struct target *target)
     char *target_real_name = NULL;
 
     switch (target->type) {
-        case TARGET_TYPE_DOCKER:
-            target_real_name = target_docker_resolve_name(target);
-            break;
+    case TARGET_TYPE_DOCKER:
+        target_real_name = target_docker_resolve_name(target);
+        break;
 
-        case TARGET_TYPE_KUBERNETES:
-            target_real_name = target_kubernetes_resolve_name(target);
-            break;
+    case TARGET_TYPE_KUBERNETES:
+        target_real_name = target_kubernetes_resolve_name(target);
+        break;
 
-        case TARGET_TYPE_ALL:
-        case TARGET_TYPE_KERNEL:
-        case TARGET_TYPE_SYSTEM:
-            /* the above types have static name */
-            target_real_name = strdup(target_types_name[target->type]);
-            break;
+    case TARGET_TYPE_ALL:
+    case TARGET_TYPE_KERNEL:
+    case TARGET_TYPE_SYSTEM:
+        /* the above types have static name */
+        target_real_name = strdup(target_types_name[target->type]);
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     /* if name cannot be resolved, use the cgroup path relative to cgroup base dir */
@@ -172,35 +155,33 @@ target_destroy(struct target *target)
     free(target);
 }
 
-
-int nftw_callback(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf) {
-    // If it's not a directory or if it's not a leaf directory, skip it
-    if (typeflag != FTW_D || ftwbuf->level == 0 || ftwbuf->level > 1)
-        return 0;
-
+int
+target_discover_running(const char *base_path, enum target_type type_mask, zhashx_t *targets)
+{
+    DIR *dir;
+    struct dirent *entry;
     enum target_type type;
     struct target *target = NULL;
-    struct NftwContext *context = ftwbuf->base;
 
-    type = target_detect_type(fpath);
-    if ((type & context->type_mask) && target_validate_type(type, fpath)) {
-        target = target_create(type, context->base_path, fpath);
-        if (target)
-            zhashx_insert(context->targets, fpath, target);
-    }
-
-    return 0; // To tell nftw() to continue
-}
-
-
-int target_discover_running(const char *base_path, enum target_type type_mask, zhashx_t *targets) {
-    struct NftwContext context = { .base_path = base_path, .type_mask = type_mask, .targets = targets };
-
-    if (nftw(base_path, nftw_callback, 20, FTW_PHYS) == -1) {
-        perror("nftw");
+    dir = opendir(base_path);
+    if (!dir)
         return -1;
+
+    while ((entry = readdir(dir)) != NULL) {
+        char path[1024];
+        if (entry->d_type == DT_DIR) {
+            if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+                continue;
+            snprintf(path, sizeof(path), "%s/%s", base_path, entry->d_name);
+            type = target_detect_type(path);
+            if ((type & type_mask) && target_validate_type(type, path)) {
+                target = target_create(type, base_path, path);
+                if (target)
+                    zhashx_insert(targets, path, target);
+            }
+        }
     }
 
+    closedir(dir);
     return 0;
 }
-
