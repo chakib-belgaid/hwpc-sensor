@@ -40,7 +40,7 @@
 #include "util.h"
 
 
-const char short_opts[] = "x:vf:p:n:s:c:e:or:U:D:C:P:";
+const char short_opts[] = "x:vif:p:n:s:c:e:or:U:D:C:P:";
 static struct option long_opts[] = {
     {"config-file", required_argument, 0, 'x'},
     {NULL, 0, NULL, 0}
@@ -305,6 +305,9 @@ config_setup_from_cli(int argc, char **argv, struct config *config)
 
             case 'v':
             config->sensor.verbose++;
+            break;
+            case 'i':
+            config->sensor.ignore_unsupported_events++;
             break;
 
             case 'p':

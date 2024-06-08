@@ -6,7 +6,7 @@
     "ignore_unsupported_events": true,
     "output": {
         "type": "csv",
-        "uri": "/job"
+        "outdir": "/job"
     },
     "system": {
         "rapl": {

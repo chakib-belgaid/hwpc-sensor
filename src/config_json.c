@@ -60,6 +60,24 @@ setup_verbose(struct config *config, json_object *verbose_obj)
 }
 
 static int
+setup_ignore_unsupported_events(struct config *config, json_object *ignore_unsupported_events_obj)
+{
+    int ignore_unsupported_events;
+
+    errno = 0;
+    ignore_unsupported_events = json_object_get_int(ignore_unsupported_events_obj);
+    if (errno != 0 || ignore_unsupported_events < 0) {
+        zsys_error("config: json: ignore_unsupported_events value is invalid (boolean or positive integer expected)");
+        return -1;
+    }
+
+    config->sensor.ignore_unsupported_events = (unsigned int) ignore_unsupported_events;
+    return 0;
+}
+
+
+
+static int
 setup_cgroup_basepath(struct config *config, json_object *cgroup_basepath_obj)
 {
     const char *cgroup_basepath = NULL;
@@ -370,6 +388,11 @@ process_json_fields(struct config *config, json_object *root)
     json_object_object_foreach(root, key, value) {
         if (!strcasecmp(key, "verbose")) {
             if (setup_verbose(config, value)) {
+                return -1;
+            }
+        }
+        if (!strcasecmp(key, "ignore_unsupported_events")) {
+            if (setup_ignore_unsupported_events(config, value)) {
                 return -1;
             }
         }

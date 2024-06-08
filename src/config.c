@@ -54,6 +54,7 @@ config_create(void)
     /* sensor default config */
     config->sensor.verbose = 0;
     config->sensor.frequency = 1000;
+    config->sensor.ignore_unsupported_events = 0;
     snprintf(config->sensor.cgroup_basepath, PATH_MAX, "%s", "/sys/fs/cgroup");
     gethostname(config->sensor.name, HOST_NAME_MAX);
 
