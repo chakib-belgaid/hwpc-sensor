@@ -148,7 +148,7 @@ setup_cgroups_events_group_type(struct events_group *events_group, enum events_g
 }
 
 static int
-append_event_to_events_group(struct events_group *events_group, const char *event_name, int ignore_unsupported_events)
+append_event_to_events_group(struct events_group *events_group, const char *event_name, unsigned int ignore_unsupported_events)
 {
     if (!events_group) {
         zsys_error("config: cli: No events group defined for event: %s", event_name);

@@ -61,7 +61,7 @@ setup_verbose(struct config *config, json_object *verbose_obj)
 static int
 setup_ignore_unsupported_events(struct config *config, json_object *ignore_unsupported_events_obj)
 {
-    int ignore_unsupported_events;
+    unsigned int ignore_unsupported_events;
 
     errno = 0;
     ignore_unsupported_events = json_object_get_int(ignore_unsupported_events_obj);
@@ -285,7 +285,7 @@ handle_storage_parameters(struct config *config, json_object *storage_obj)
 }
 
 static int
-setup_perf_events_group_events(struct events_group *events_group, json_object *events_group_obj, int ignore_unsupported_events)
+setup_perf_events_group_events(struct events_group *events_group, json_object *events_group_obj, unsigned int ignore_unsupported_events)
 {
     const char *event_name = NULL;
 
@@ -330,7 +330,7 @@ setup_perf_events_group_mode(struct events_group *events_group, json_object *mod
 
 static int
 handle_perf_events_group_parameters(const char *events_group_name, json_object *events_group_obj, zhashx_t *events_groups,
-                                    int ignore_unsupported_events)
+                                    unsigned int ignore_unsupported_events)
 {
     int ret = -1;
     struct events_group *events_group = NULL;
@@ -366,7 +366,7 @@ cleanup:
 }
 
 static int
-handle_perf_events_groups(json_object *events_groups_obj, zhashx_t *events_groups, int ignore_unsupported_events)
+handle_perf_events_groups(json_object *events_groups_obj, zhashx_t *events_groups, unsigned int ignore_unsupported_events)
 {
     json_object_object_foreach(events_groups_obj, key, value)
     {
