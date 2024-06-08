@@ -39,12 +39,8 @@
 #include "config_json.h"
 #include "util.h"
 
-
 const char short_opts[] = "x:vif:p:n:s:c:e:or:U:D:C:P:";
-static struct option long_opts[] = {
-    {"config-file", required_argument, 0, 'x'},
-    {NULL, 0, NULL, 0}
-};
+static struct option long_opts[] = {{"config-file", required_argument, 0, 'x'}, {NULL, 0, NULL, 0}};
 
 static int
 setup_config_from_file(struct config *config, char *filepath)
@@ -152,7 +148,7 @@ setup_cgroups_events_group_type(struct events_group *events_group, enum events_g
 }
 
 static int
-append_event_to_events_group(struct events_group *events_group, const char *event_name)
+append_event_to_events_group(struct events_group *events_group, const char *event_name, int ignore_unsupported_events)
 {
     if (!events_group) {
         zsys_error("config: cli: No events group defined for event: %s", event_name);
@@ -160,8 +156,12 @@ append_event_to_events_group(struct events_group *events_group, const char *even
     }
 
     if (events_group_append_event(events_group, event_name)) {
-        zsys_error("config: cli: Failed to add event '%s' to group '%s'", optarg, events_group->name);
-        return -1;
+        if (ignore_unsupported_events) {
+            zsys_warning("config: cli: Failed to add event '%s' to group '%s' and it will be ignored", optarg, events_group->name);
+        } else {
+            zsys_error("config: cli: Failed to add event '%s' to group '%s'", optarg, events_group->name);
+            return -1;
+        }
     }
     return 0;
 }
@@ -184,16 +184,15 @@ setup_storage_module(struct config *config, const char *module_name)
 static int
 setup_storage_csv_parameters(struct config *config, int opt, const char *value)
 {
-    switch (opt)
-    {
-        case 'U': /* Output directory path */
+    switch (opt) {
+    case 'U': /* Output directory path */
         if (snprintf(config->storage.csv.outdir, PATH_MAX, "%s", value) >= PATH_MAX) {
             zsys_error("config: cli: CSV output directory path is too long");
             return -1;
         }
         break;
 
-        default:
+    default:
         return -1;
     }
 
@@ -203,23 +202,22 @@ setup_storage_csv_parameters(struct config *config, int opt, const char *value)
 static int
 setup_storage_socket_parameters(struct config *config, int opt, const char *value)
 {
-    switch (opt)
-    {
-        case 'U': /* Destination IP/hostname */
+    switch (opt) {
+    case 'U': /* Destination IP/hostname */
         if (snprintf(config->storage.socket.hostname, HOST_NAME_MAX, "%s", value) >= HOST_NAME_MAX) {
             zsys_error("config: cli: Socket output host is too long");
             return -1;
         }
         break;
 
-        case 'P': /* Destination port number */
+    case 'P': /* Destination port number */
         if (snprintf(config->storage.socket.port, NI_MAXSERV, "%s", value) >= NI_MAXSERV) {
             zsys_error("config: cli: Socket output port is too long");
             return -1;
         }
         break;
 
-        default:
+    default:
         return -1;
     }
 
@@ -230,30 +228,29 @@ setup_storage_socket_parameters(struct config *config, int opt, const char *valu
 static int
 setup_storage_mongodb_parameters(struct config *config, int opt, const char *value)
 {
-    switch (opt)
-    {
-        case 'U': /* MongoDB URI (mongodb://x) */
+    switch (opt) {
+    case 'U': /* MongoDB URI (mongodb://x) */
         if (snprintf(config->storage.mongodb.uri, PATH_MAX, "%s", value) >= PATH_MAX) {
             zsys_error("config: cli: MongoDB URI is too long");
             return -1;
         }
         break;
 
-        case 'D': /* MongoDB Database name */
+    case 'D': /* MongoDB Database name */
         if (snprintf(config->storage.mongodb.database, NAME_MAX, "%s", value) >= NAME_MAX) {
             zsys_error("config: cli: MongoDB database name is too long");
             return -1;
         }
         break;
 
-        case 'C': /* MongoDB Collection name */
+    case 'C': /* MongoDB Collection name */
         if (snprintf(config->storage.mongodb.collection, NAME_MAX, "%s", value) >= NAME_MAX) {
             zsys_error("config: cli: MongoDB collection name is too long");
             return -1;
         }
         break;
 
-        default:
+    default:
         return -1;
     }
 
@@ -264,23 +261,22 @@ setup_storage_mongodb_parameters(struct config *config, int opt, const char *val
 static int
 setup_storage_parameters(struct config *config, int opt, const char *value)
 {
-    switch (config->storage.type)
-    {
-        case STORAGE_NULL:
+    switch (config->storage.type) {
+    case STORAGE_NULL:
         return 0; /* Ignore parameters */
 
-        case STORAGE_CSV:
+    case STORAGE_CSV:
         return setup_storage_csv_parameters(config, opt, value);
 
-        case STORAGE_SOCKET:
+    case STORAGE_SOCKET:
         return setup_storage_socket_parameters(config, opt, value);
 
 #ifdef HAVE_MONGODB
-        case STORAGE_MONGODB:
+    case STORAGE_MONGODB:
         return setup_storage_mongodb_parameters(config, opt, value);
 #endif
 
-        default:
+    default:
         return -1;
     }
 }
@@ -295,81 +291,81 @@ config_setup_from_cli(int argc, char **argv, struct config *config)
     opterr = 0; /* Disable getopt error messages  */
 
     while ((opt = getopt_long(argc, argv, short_opts, long_opts, &option_index)) != -1) {
-        switch (opt)
-        {
-            case 'x':
+        switch (opt) {
+        case 'x':
             if (setup_config_from_file(config, optarg)) {
                 return -1;
             }
             break;
 
-            case 'v':
+        case 'v':
             config->sensor.verbose++;
             break;
-            case 'i':
+        case 'i':
             config->sensor.ignore_unsupported_events++;
             break;
 
-            case 'p':
+        case 'p':
             if (setup_cgroup_basepath(config, optarg)) {
                 return -1;
             }
             break;
 
-            case 'n':
+        case 'n':
             if (setup_sensor_name(config, optarg)) {
                 return -1;
             }
             break;
 
-            case 'f':
+        case 'f':
             if (setup_frequency(config, optarg)) {
                 return -1;
             }
             break;
 
-            case 's':
+        case 's':
             if (setup_global_events_group(config, optarg)) {
                 return -1;
             }
             current_events_group = zhashx_lookup(config->events.system, optarg);
             break;
 
-            case 'c':
+        case 'c':
             if (setup_cgroups_events_group(config, optarg)) {
                 return -1;
             }
             current_events_group = zhashx_lookup(config->events.containers, optarg);
             break;
 
-            case 'o':
+        case 'o':
             if (setup_cgroups_events_group_type(current_events_group, MONITOR_ONE_CPU_PER_SOCKET)) {
                 return -1;
             }
             break;
 
-            case 'e':
-            if (append_event_to_events_group(current_events_group, optarg)) {
+        case 'e':
+            if (append_event_to_events_group(current_events_group, optarg, config->ignore_unsupported_events,
+                                             config->ignore_unsupported_events)) {
                 return -1;
             }
             break;
 
-            case 'r':
+        case 'r':
             if (setup_storage_module(config, optarg)) {
                 return -1;
             }
             break;
 
-            case 'U':
-            case 'D':
-            case 'C':
-            case 'P':
+        case 'U':
+        case 'D':
+        case 'C':
+        case 'P':
             if (setup_storage_parameters(config, opt, optarg)) {
                 return -1;
             }
             break;
 
-            default:
+        default:
             zsys_error("config: Argument '%c' is unknown", optopt);
             return -1;
         }

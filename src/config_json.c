@@ -42,7 +42,6 @@
  */
 #define JSON_FILE_BUFFER_SIZE 4096
 
-
 static int
 setup_verbose(struct config *config, json_object *verbose_obj)
 {
@@ -58,24 +57,6 @@ setup_verbose(struct config *config, json_object *verbose_obj)
     config->sensor.verbose = (unsigned int) verbose;
     return 0;
 }
-
-static int
-setup_ignore_unsupported_events(struct config *config, json_object *ignore_unsupported_events_obj)
-{
-    int ignore_unsupported_events;
-
-    errno = 0;
-    ignore_unsupported_events = json_object_get_int(ignore_unsupported_events_obj);
-    if (errno != 0 || ignore_unsupported_events < 0) {
-        zsys_error("config: json: ignore_unsupported_events value is invalid (boolean or positive integer expected)");
-        return -1;
-    }
-
-    config->sensor.ignore_unsupported_events = (unsigned int) ignore_unsupported_events;
-    return 0;
-}
-
-
 
 static int
 setup_cgroup_basepath(struct config *config, json_object *cgroup_basepath_obj)
@@ -147,11 +128,11 @@ setup_storage_type(struct config *config, json_object *storage)
 static int
 setup_storage_null_parameters(struct config *config __attribute__((unused)), json_object *storage_obj)
 {
-    json_object_object_foreach(storage_obj, key, value) {
+    json_object_object_foreach(storage_obj, key, value)
+    {
         if (!strcasecmp(key, "type")) {
             continue;
-        }
-        else {
+        } else {
             zsys_error("config: json: Invalid parameter '%s' for Null storage module", key);
             return -1;
         }
@@ -165,7 +146,8 @@ setup_storage_csv_parameters(struct config *config, json_object *storage_obj)
 {
     const char *output_dir = NULL;
 
-    json_object_object_foreach(storage_obj, key, value) {
+    json_object_object_foreach(storage_obj, key, value)
+    {
         if (!strcasecmp(key, "type")) {
             continue; /* This field have already been processed */
         }
@@ -175,8 +157,7 @@ setup_storage_csv_parameters(struct config *config, json_object *storage_obj)
                 zsys_error("config: json: CSV output directory path is too long");
                 return -1;
             }
-        }
-        else {
+        } else {
             zsys_error("config: json: Invalid parameter '%s' for CSV storage module", key);
             return -1;
         }
@@ -191,25 +172,23 @@ setup_storage_socket_parameters(struct config *config, json_object *storage_obj)
     const char *host = NULL;
     const char *port = NULL;
 
-    json_object_object_foreach(storage_obj, key, value) {
+    json_object_object_foreach(storage_obj, key, value)
+    {
         if (!strcasecmp(key, "type")) {
             continue; /* This field have already been processed */
-        }
-        else if (!strcasecmp(key, "uri") || !strcasecmp(key, "host")) {
+        } else if (!strcasecmp(key, "uri") || !strcasecmp(key, "host")) {
             host = json_object_get_string(value);
             if (snprintf(config->storage.socket.hostname, HOST_NAME_MAX, "%s", host) >= HOST_NAME_MAX) {
                 zsys_error("config: json: Socket output host is too long");
                 return -1;
             }
-        }
-        else if (!strcasecmp(key, "port")) {
+        } else if (!strcasecmp(key, "port")) {
             port = json_object_get_string(value);
             if (snprintf(config->storage.socket.port, NI_MAXSERV, "%s", port) >= NI_MAXSERV) {
                 zsys_error("config: json: Socket output port is too long");
                 return -1;
             }
-        }
-        else {
+        } else {
             zsys_error("config: json: Invalid parameter '%s' for Socket storage module", key);
             return -1;
         }
@@ -226,32 +205,29 @@ setup_storage_mongodb_parameters(struct config *config, json_object *storage_obj
     const char *database = NULL;
     const char *collection = NULL;
 
-    json_object_object_foreach(storage_obj, key, value) {
+    json_object_object_foreach(storage_obj, key, value)
+    {
         if (!strcasecmp(key, "type")) {
             continue; /* This field have already been processed */
-        }
-        else if (!strcasecmp(key, "uri")) {
+        } else if (!strcasecmp(key, "uri")) {
             uri = json_object_get_string(value);
             if (snprintf(config->storage.mongodb.uri, PATH_MAX, "%s", uri) >= PATH_MAX) {
                 zsys_error("config: json: MongoDB URI is too long");
                 return -1;
             }
-        }
-        else if (!strcasecmp(key, "database")) {
+        } else if (!strcasecmp(key, "database")) {
             database = json_object_get_string(value);
             if (snprintf(config->storage.mongodb.database, NAME_MAX, "%s", database) >= NAME_MAX) {
                 zsys_error("config: json: MongoDB database name is too long");
                 return -1;
             }
-        }
-        else if (!strcasecmp(key, "collection")) {
+        } else if (!strcasecmp(key, "collection")) {
             collection = json_object_get_string(value);
             if (snprintf(config->storage.mongodb.collection, NAME_MAX, "%s", collection) >= NAME_MAX) {
                 zsys_error("config: json: MongoDB collection name is too long");
                 return -1;
             }
-        }
-        else {
+        } else {
             zsys_error("config: json: Invalid parameter '%s' for MongoDB storage module", key);
             return -1;
         }
@@ -272,29 +248,28 @@ handle_storage_parameters(struct config *config, json_object *storage_obj)
         return -1;
     }
 
-    switch (config->storage.type)
-    {
-        case STORAGE_NULL:
+    switch (config->storage.type) {
+    case STORAGE_NULL:
         return setup_storage_null_parameters(config, storage_obj);
 
-        case STORAGE_CSV:
+    case STORAGE_CSV:
         return setup_storage_csv_parameters(config, storage_obj);
 
-        case STORAGE_SOCKET:
+    case STORAGE_SOCKET:
         return setup_storage_socket_parameters(config, storage_obj);
 
 #ifdef HAVE_MONGODB
-        case STORAGE_MONGODB:
+    case STORAGE_MONGODB:
         return setup_storage_mongodb_parameters(config, storage_obj);
 #endif
 
-        default:
+    default:
         return -1;
     }
 }
 
 static int
-setup_perf_events_group_events(struct events_group *events_group, json_object *events_group_obj)
+setup_perf_events_group_events(struct events_group *events_group, json_object *events_group_obj, int ignore_unsupported_events)
 {
     const char *event_name = NULL;
 
@@ -306,8 +281,12 @@ setup_perf_events_group_events(struct events_group *events_group, json_object *e
     for (size_t i = 0; i < json_object_array_length(events_group_obj); i++) {
         event_name = json_object_get_string(json_object_array_get_idx(events_group_obj, i));
         if (events_group_append_event(events_group, event_name)) {
-            zsys_error("config: json: Failed to add event '%s' to group '%s'", event_name, events_group->name);
-            return -1;
+            if (ignore_unsupported_events) {
+                zsys_warning("config: json: Failed to add event '%s' to group '%s' and it will be ignored", event_name, events_group->name);
+            } else {
+                zsys_error("config: json: Failed to add event '%s' to group '%s'", event_name, events_group->name);
+                return -1;
+            }
         }
     }
 
@@ -334,7 +313,8 @@ setup_perf_events_group_mode(struct events_group *events_group, json_object *mod
 }
 
 static int
-handle_perf_events_group_parameters(const char *events_group_name, json_object *events_group_obj, zhashx_t *events_groups)
+handle_perf_events_group_parameters(const char *events_group_name, json_object *events_group_obj, zhashx_t *events_groups,
+                                    int ignore_unsupported_events)
 {
     int ret = -1;
     struct events_group *events_group = NULL;
@@ -345,18 +325,17 @@ handle_perf_events_group_parameters(const char *events_group_name, json_object *
         return -1;
     }
 
-    json_object_object_foreach(events_group_obj, key, value) {
+    json_object_object_foreach(events_group_obj, key, value)
+    {
         if (!strcasecmp(key, "events")) {
-            if (setup_perf_events_group_events(events_group, value)) {
+            if (setup_perf_events_group_events(events_group, value, ignore_unsupported_events)) {
                 goto cleanup;
             }
-        }
-        else if (!strcasecmp(key, "monitoring_type") || !strcasecmp(key, "mode")) {
+        } else if (!strcasecmp(key, "monitoring_type") || !strcasecmp(key, "mode")) {
             if (setup_perf_events_group_mode(events_group, value)) {
                 goto cleanup;
             }
-        }
-        else {
+        } else {
             zsys_error("config: json: Invalid parameter '%s' for '%s' events group", key, events_group);
             goto cleanup;
         }
@@ -371,10 +350,11 @@ cleanup:
 }
 
 static int
-handle_perf_events_groups(json_object *events_groups_obj, zhashx_t *events_groups)
+handle_perf_events_groups(json_object *events_groups_obj, zhashx_t *events_groups, int ignore_unsupported_events)
 {
-    json_object_object_foreach(events_groups_obj, key, value) {
-        if (handle_perf_events_group_parameters(key, value, events_groups)) {
+    json_object_object_foreach(events_groups_obj, key, value)
+    {
+        if (handle_perf_events_group_parameters(key, value, events_groups, ignore_unsupported_events)) {
             return -1;
         }
     }
@@ -385,48 +365,37 @@ handle_perf_events_groups(json_object *events_groups_obj, zhashx_t *events_group
 static int
 process_json_fields(struct config *config, json_object *root)
 {
-    json_object_object_foreach(root, key, value) {
+    json_object_object_foreach(root, key, value)
+    {
         if (!strcasecmp(key, "verbose")) {
             if (setup_verbose(config, value)) {
                 return -1;
             }
-        }
-        else if (!strcasecmp(key, "ignore_unsupported_events")) {
-            if (setup_ignore_unsupported_events(config, value)) {
-                return -1;
-            }
-        }
-        else if (!strcasecmp(key, "name") || !strcasecmp(key, "sensor-name")) {
+        } else if (!strcasecmp(key, "name") || !strcasecmp(key, "sensor-name")) {
             if (setup_sensor_name(config, value)) {
                 return -1;
             }
-        }
-        else if (!strcasecmp(key, "cgroup_basepath") || !strcasecmp(key, "cgroup-basepath")) {
+        } else if (!strcasecmp(key, "cgroup_basepath") || !strcasecmp(key, "cgroup-basepath")) {
             if (setup_cgroup_basepath(config, value)) {
                 return -1;
             }
-        }
-        else if (!strcasecmp(key, "frequency")) {
+        } else if (!strcasecmp(key, "frequency")) {
             if (setup_frequency(config, value)) {
                 return -1;
             }
-        }
-        else if (!strcasecmp(key, "output") || !strcasecmp(key, "storage")) {
+        } else if (!strcasecmp(key, "output") || !strcasecmp(key, "storage")) {
             if (handle_storage_parameters(config, value)) {
                 return -1;
             }
-        }
-        else if (!strcasecmp(key, "system") || !strcasecmp(key, "global")) {
-            if (handle_perf_events_groups(value, config->events.system)) {
+        } else if (!strcasecmp(key, "system") || !strcasecmp(key, "global")) {
+            if (handle_perf_events_groups(value, config->events.system, config->ignore_unsupported_events)) {
                 return -1;
             }
-        }
-        else if (!strcasecmp(key, "container") || !strcasecmp(key, "cgroups")) {
+        } else if (!strcasecmp(key, "container") || !strcasecmp(key, "cgroups")) {
             if (handle_perf_events_groups(value, config->events.containers)) {
                 return -1;
             }
-        }
-        else {
+        } else {
             zsys_error("config: json: Unknown parameter: '%s'", key);
             return -1;
         }
@@ -457,7 +426,8 @@ read_file_content(int fd, char *buffer, size_t buffer_size)
     }
 
     if (sb.st_size >= (off_t) buffer_size) {
-        zsys_error("config: json: Configuration file size is too big (current: %lu KB, max: %lu KB)", sb.st_size / 1024, buffer_size / 1024);
+        zsys_error("config: json: Configuration file size is too big (current: %lu KB, max: %lu KB)", sb.st_size / 1024,
+                   buffer_size / 1024);
         return -1;
     }
 
@@ -476,13 +446,11 @@ compute_current_position_from_offset(const char *str, size_t target_offset, size
 {
     *line = 1;
     *column = 1;
-    for (size_t current_offset = 0; current_offset < target_offset; current_offset++)
-    {
+    for (size_t current_offset = 0; current_offset < target_offset; current_offset++) {
         if (str[current_offset] == '\n') {
             (*line)++;
             *column = 1;
-        }
-        else {
+        } else {
             (*column)++;
         }
     }
