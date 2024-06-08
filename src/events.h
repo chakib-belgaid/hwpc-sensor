@@ -32,6 +32,7 @@
 #ifndef EVENTS_H
 #define EVENTS_H
 
+#include <limits.h>
 #include <czmq.h>
 #include <perfmon/pfmlib_perf_event.h>
 
@@ -43,16 +44,18 @@ enum events_group_monitoring_type { MONITOR_ALL_CPU_PER_SOCKET, MONITOR_ONE_CPU_
 /*
  * event_config is the event configuration container.
  */
-struct event_config {
-    const char *name;
+struct event_config
+{
+    char name[NAME_MAX];
     struct perf_event_attr attr;
 };
 
 /*
  * events_group is the events group container.
  */
-struct events_group {
-    const char *name;
+struct events_group
+{
+    char name[NAME_MAX];
     enum events_group_monitoring_type type;
     zlistx_t *events; /* struct event_config *event */
 };
