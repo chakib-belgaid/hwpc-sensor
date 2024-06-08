@@ -344,7 +344,7 @@ config_setup_from_cli(int argc, char **argv, struct config *config)
             break;
 
         case 'e':
-            if (append_event_to_events_group(current_events_group, optarg, config->ignore_unsupported_events)) {
+            if (append_event_to_events_group(current_events_group, optarg, config->sensor.ignore_unsupported_events)) {
                 return -1;
             }
             break;

@@ -388,11 +388,11 @@ process_json_fields(struct config *config, json_object *root)
                 return -1;
             }
         } else if (!strcasecmp(key, "system") || !strcasecmp(key, "global")) {
-            if (handle_perf_events_groups(value, config->events.system, config->ignore_unsupported_events)) {
+            if (handle_perf_events_groups(value, config->events.system, config->sensor.ignore_unsupported_events)) {
                 return -1;
             }
         } else if (!strcasecmp(key, "container") || !strcasecmp(key, "cgroups")) {
-            if (handle_perf_events_groups(value, config->events.containers)) {
+            if (handle_perf_events_groups(value, config->events.containers, config->sensor.ignore_unsupported_events)) {
                 return -1;
             }
         } else {
