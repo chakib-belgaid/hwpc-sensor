@@ -8,7 +8,7 @@ on:
 env:
     ALPINE_VERSION: 3.12
     GIT_TAG: 0.4.1
-    GIT_REV: 2
+    GIT_REV: 3
 
 jobs:
     build:
