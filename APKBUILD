@@ -38,6 +38,8 @@ build() {
     
     sed -i 's/find_package(LibPFM REQUIRED)/# find_package(LibPFM REQUIRED)/' CMakeLists.txt
     sed -i 's/add_compile_options(-Werror -Wall -Wextra -Wpedantic -Wformat=2 -Wnull-dereference -Wno-gnu-statement-expression)/add_compile_options(-Wall -Wextra -Wpedantic -Wformat=2 -Wnull-dereference)/' CMakeLists.txt
+
+    sed -i 's/target_link_libraries(hwpc-sensor "${LIBPFM_LIBRARIES}" "${CZMQ_LIBRARIES}" "${JSONC_LIBRARIES}" "${MONGOC_LIBRARIES}")/target_link_libraries(hwpc-sensor "${LIBPFM_LIBRARIES}" pfm "${CZMQ_LIBRARIES}" "${JSONC_LIBRARIES}" "${MONGOC_LIBRARIES}")' CMakeLists.txt
     
     cmake -B build -DCMAKE_C_FLAGS="-I$libdir/libpfm4/usr/local/include"  -DCMAKE_EXE_LINKER_FLAGS="-L$libdir/libpfm4/usr/local/lib" -DCMAKE_BUILD_TYPE="${BUILD_TYPE}"  -DWITH_MONGODB="${MONGODB_SUPPORT}" 
     cmake --build build  
